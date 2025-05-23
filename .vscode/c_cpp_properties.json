@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/**",
+                "C:/Espressif/tools/**",
+                "${IDF_PATH}/components/**",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/freertos/FreeRTOS-Kernel-SMP/portable/linux/include/freertos",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/xtensa/deprecated_include/freertos",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/xtensa/deprecated_include/freertos",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/xtensa/include",
+                "C:/Espressif/frameworks/esp-idf-v5.3/components/xtensa/esp32/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compileCommands": [
+                "${workspaceFolder}/build/bootloader/compile_commands.json"
+            ]
+        }
+    ],
+    "version": 4
+}

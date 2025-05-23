@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "espidf",
+      "request": "launch",
+      "name": "ESP32-S3 USB JTAG Debug",
+      "target": "esp32s3",
+      "gdb": "riscv32-esp-elf-gdb",
+      "openOcdConfigs": [
+        "interface/esp_usb_jtag.cfg",
+        "target/esp32s3.cfg"
+      ],
+      "svdPath": "${IDF_PATH}/tools/svd/esp32s3.svd"
+    }
+  ]
+}

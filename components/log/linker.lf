@@ -1,0 +1,10 @@
+[mapping:log]
+archive: liblog.a
+entries:
+    log:esp_log_write (noflash)
+    log:esp_log_writev (noflash)
+    log_freertos:esp_log_timestamp (noflash)
+    log_freertos:esp_log_early_timestamp (noflash)
+    log_freertos:esp_log_impl_lock (noflash)
+    log_freertos:esp_log_impl_lock_timeout (noflash)
+    log_freertos:esp_log_impl_unlock (noflash)

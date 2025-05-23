@@ -1,0 +1,6 @@
+source "C:/Users/btp03/workspace/Power_supply/components/bootloader/Kconfig.projbuild"
+source "C:/Users/btp03/workspace/Power_supply/components/esp_app_format/Kconfig.projbuild"
+source "C:/Users/btp03/workspace/Power_supply/components/esp_rom/Kconfig.projbuild"
+source "C:/Users/btp03/workspace/Power_supply/components/esptool_py/Kconfig.projbuild"
+source "C:/Users/btp03/workspace/Power_supply/components/partition_table/Kconfig.projbuild"
+source "C:/Users/btp03/workspace/Power_supply/main/Kconfig.projbuild"
