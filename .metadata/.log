@@ -1,0 +1,169 @@
+!SESSION 2025-05-16 14:30:22.968 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=17.0.6
+java.vendor=Amazon.com Inc.
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_GB
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY org.eclipse.launchbar.core 2 0 2025-05-16 14:30:52.752
+!MESSAGE Enablement expression is missing for descriptor type com.espressif.idf.debug.gdbjtag.openocd.descriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2025-05-16 14:30:52.754
+!MESSAGE Enablement expression is missing for config provider for com.espressif.idf.debug.gdbjtag.openocd.descriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2025-05-16 14:30:52.757
+!MESSAGE Enablement expression is missing for config provider for com.espressif.idf.launch.serial.core.idf.descriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2025-05-16 14:30:52.758
+!MESSAGE Enablement expression is missing for descriptor type com.espressif.idf.launch.serial.core.idf.descriptorType
+
+!ENTRY org.eclipse.egit.ui 2 0 2025-05-16 14:30:52.847
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\btp03'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:54.238
+!MESSAGE Initializing toolchain...
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:54.239
+!MESSAGE idf_tools.py path: null/tools/idf_tools.py
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:54.240
+!MESSAGE idf_tools.py path doesn't exist
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:54.241
+!MESSAGE [C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\dotnet\;C:\Program Files\CMake\bin;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\btp03\AppData\Local\Programs\Python\Python313\;C:\Users\btp03\AppData\Local\Programs\Python\Launcher\;C:\Users\btp03\AppData\Local\Microsoft\WindowsApps;C:\Users\btp03\AppData\Local\Programs\Microsoft VS Code\bin;C:\msys64\mingw64\share\openocd;C:\msys64\mingw64\bin;C:\Program Files\SEGGER\JLink_V828;C:\Program Files (x86)\arm-gnu-toolchain-12.2.rel1-mingw-w64-i686-arm-none-eabi\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\share\openocd;]
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:55.966
+!MESSAGE Eclipse Install location::file:/C:/Espressif/tools/espressif-ide/3.1.0/
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:56.152
+!MESSAGE Executing C:/Espressif/python_env/idf5.3_py3.11_env/Scripts/python.exe C:\Espressif\frameworks\esp-idf-v5.3\tools\idf_tools.py export --format=key-value
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.387
+!MESSAGE Key: OPENOCD_SCRIPTS Value: C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\share\openocd\scripts
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.387
+!MESSAGE Key: IDF_CCACHE_ENABLE Value: 1
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.388
+!MESSAGE Key: ESP_ROM_ELF_DIR Value: C:\Espressif\tools\esp-rom-elfs\20240305\
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.388
+!MESSAGE Key: IDF_PYTHON_ENV_PATH Value: C:\Espressif\python_env\idf5.3_py3.11_env
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.389
+!MESSAGE Key: ESP_IDF_VERSION Value: 5.3
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.389
+!MESSAGE Key: PATH Value: C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-13.2.0_20240530\xtensa-esp-elf\bin;C:\Espressif\tools\esp-clang\16.0.1-fe4f10a809\esp-clang\bin;C:\Espressif\tools\riscv32-esp-elf\esp-13.2.0_20240530\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.3_py3.11_env\Scripts;C:\Espressif\frameworks\esp-idf-v5.3\tools;%PATH%
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.390
+!MESSAGE Key: IDF_DEACTIVATE_FILE_PATH Value: C:\Users\btp03\AppData\Local\Temp\tmp7c6pakglidf_9996
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.392
+!MESSAGE Executing C:\Espressif\python_env\idf5.3_py3.11_env/Scripts/python.exe C:\Espressif\frameworks\esp-idf-v5.3\tools\idf.py --version
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:30:57.393
+!MESSAGE {USERDOMAIN_ROAMINGPROFILE=DESKTOP-I23F8MI, LOCALAPPDATA=C:\Users\btp03\AppData\Local, PROCESSOR_LEVEL=6, USERDOMAIN=DESKTOP-I23F8MI, LOGONSERVER=\\DESKTOP-I23F8MI, SESSIONNAME=Console, ALLUSERSPROFILE=C:\ProgramData, PROCESSOR_ARCHITECTURE=AMD64, PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules, IDF_TOOLS_PATH=C:/Espressif, SystemDrive=C:, OneDrive=C:\Users\btp03\OneDrive, APPDATA=C:\Users\btp03\AppData\Roaming, AppsRoot=D, USERNAME=btp03, ProgramFiles(x86)=C:\Program Files (x86), CommonProgramFiles=C:\Program Files\Common Files, Path=C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\dotnet\;C:\Program Files\CMake\bin;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\btp03\AppData\Local\Programs\Python\Python313\;C:\Users\btp03\AppData\Local\Programs\Python\Launcher\;C:\Users\btp03\AppData\Local\Microsoft\WindowsApps;C:\Users\btp03\AppData\Local\Programs\Microsoft VS Code\bin;C:\msys64\mingw64\share\openocd;C:\msys64\mingw64\bin;C:\Program Files\SEGGER\JLink_V828;C:\Program Files (x86)\arm-gnu-toolchain-12.2.rel1-mingw-w64-i686-arm-none-eabi\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\share\openocd;, PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC, DriverData=C:\Windows\System32\Drivers\DriverData, OS=Windows_NT, COMPUTERNAME=DESKTOP-I23F8MI, PROCESSOR_REVISION=4501, CommonProgramW6432=C:\Program Files\Common Files, ComSpec=C:\Windows\system32\cmd.exe, ProgramData=C:\ProgramData, ProgramW6432=C:\Program Files, STM32CubeMX_PATH=C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX, HOMEPATH=\Users\btp03, SystemRoot=C:\Windows, TEMP=C:\Users\btp03\AppData\Local\Temp, HOMEDRIVE=C:, PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 69 Stepping 1, GenuineIntel, USERPROFILE=C:\Users\btp03, TMP=C:\Users\btp03\AppData\Local\Temp, CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files, ProgramFiles=C:\Program Files, PUBLIC=C:\Users\Public, NUMBER_OF_PROCESSORS=4, windir=C:\Windows}
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.333
+!MESSAGE Updating environment variables with key:ESP_IDF_VERSION value:5.3.3
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.338
+!MESSAGE Updating environment variables with key:GIT_PATH value:C:/Espressif/tools/idf-git/2.44.0/cmd/git.exe
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.341
+!MESSAGE Updating environment variables with key:IDF_COMPONENT_MANAGER value:1
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.345
+!MESSAGE Updating environment variables with key:IDF_MAINTAINER value:1
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.348
+!MESSAGE Updating environment variables with key:IDF_PATH value:C:/Espressif/frameworks/esp-idf-v5.3/
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.352
+!MESSAGE Updating environment variables with key:IDF_PYTHON_ENV_PATH value:C:\Espressif\python_env\idf5.3_py3.11_env
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.356
+!MESSAGE Updating environment variables with key:OPENOCD_SCRIPTS value:C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\share\openocd\scripts
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.360
+!MESSAGE Updating environment variables with key:PATH value:C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-13.2.0_20240530\xtensa-esp-elf\bin;C:\Espressif\tools\esp-clang\16.0.1-fe4f10a809\esp-clang\bin;C:\Espressif\tools\riscv32-esp-elf\esp-13.2.0_20240530\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.3_py3.11_env\Scripts;C:\Espressif\frameworks\esp-idf-v5.3\tools;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\dotnet\;C:\Program Files\CMake\bin;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\btp03\AppData\Local\Programs\Python\Python313\;C:\Users\btp03\AppData\Local\Programs\Python\Launcher\;C:\Users\btp03\AppData\Local\Microsoft\WindowsApps;C:\Users\btp03\AppData\Local\Programs\Microsoft VS Code\bin;C:\msys64\mingw64\share\openocd;C:\msys64\mingw64\bin;C:\Program Files\SEGGER\JLink_V828;C:\Program Files (x86)\arm-gnu-toolchain-12.2.rel1-mingw-w64-i686-arm-none-eabi\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\share\openocd;
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.363
+!MESSAGE Updating environment variables with key:PYTHON_EXE_PATH value:C:/Espressif/python_env/idf5.3_py3.11_env/Scripts/python.exe
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.367
+!MESSAGE Updating environment variables with key:IDF_COMPONENT_MANAGER value:1
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.368
+!MESSAGE Updating environment variables with key:IDF_MAINTAINER value:1
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.370
+!MESSAGE Executing C:\Espressif\python_env\idf5.3_py3.11_env/Scripts/python.exe C:\Espressif\frameworks\esp-idf-v5.3\tools\idf.py --list-targets
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:04.371
+!MESSAGE {USERDOMAIN_ROAMINGPROFILE=DESKTOP-I23F8MI, LOCALAPPDATA=C:\Users\btp03\AppData\Local, PROCESSOR_LEVEL=6, USERDOMAIN=DESKTOP-I23F8MI, LOGONSERVER=\\DESKTOP-I23F8MI, SESSIONNAME=Console, ALLUSERSPROFILE=C:\ProgramData, PROCESSOR_ARCHITECTURE=AMD64, PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules, IDF_TOOLS_PATH=C:/Espressif, SystemDrive=C:, OneDrive=C:\Users\btp03\OneDrive, APPDATA=C:\Users\btp03\AppData\Roaming, AppsRoot=D, USERNAME=btp03, ProgramFiles(x86)=C:\Program Files (x86), CommonProgramFiles=C:\Program Files\Common Files, Path=C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\dotnet\;C:\Program Files\CMake\bin;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\btp03\AppData\Local\Programs\Python\Python313\;C:\Users\btp03\AppData\Local\Programs\Python\Launcher\;C:\Users\btp03\AppData\Local\Microsoft\WindowsApps;C:\Users\btp03\AppData\Local\Programs\Microsoft VS Code\bin;C:\msys64\mingw64\share\openocd;C:\msys64\mingw64\bin;C:\Program Files\SEGGER\JLink_V828;C:\Program Files (x86)\arm-gnu-toolchain-12.2.rel1-mingw-w64-i686-arm-none-eabi\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\share\openocd;, PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC, DriverData=C:\Windows\System32\Drivers\DriverData, OS=Windows_NT, COMPUTERNAME=DESKTOP-I23F8MI, PROCESSOR_REVISION=4501, CommonProgramW6432=C:\Program Files\Common Files, ComSpec=C:\Windows\system32\cmd.exe, ProgramData=C:\ProgramData, ProgramW6432=C:\Program Files, STM32CubeMX_PATH=C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX, HOMEPATH=\Users\btp03, SystemRoot=C:\Windows, TEMP=C:\Users\btp03\AppData\Local\Temp, HOMEDRIVE=C:, PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 69 Stepping 1, GenuineIntel, USERPROFILE=C:\Users\btp03, TMP=C:\Users\btp03\AppData\Local\Temp, CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files, ProgramFiles=C:\Program Files, PUBLIC=C:\Users\Public, NUMBER_OF_PROCESSORS=4, windir=C:\Windows}
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.084
+!MESSAGE Initializing toolchain...
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.084
+!MESSAGE idf_tools.py path: C:/Espressif/frameworks/esp-idf-v5.3//tools/idf_tools.py
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.085
+!MESSAGE [C:\Espressif\python_env\idf5.3_py3.11_env\Scripts\python.exe, C:/Espressif/frameworks/esp-idf-v5.3//tools/idf_tools.py, export, --format=key-value]
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.645
+!MESSAGE idf_tools.py export output: Not using an unsupported version of tool cmake found in PATH: 3.31.7. To use it, run 'C:\Espressif\python_env\idf5.3_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.3\tools\idf_tools.py export --prefer-system'
+Not using an unsupported version of tool openocd-esp32 found in PATH: 0.12.0. To use it, run 'C:\Espressif\python_env\idf5.3_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.3\tools\idf_tools.py export --prefer-system'
+WARNING: The following issue occurred while accessing the ESP-IDF version file in the Python environment: [Errno 2] No such file or directory: 'C:\\Espressif\\python_env\\idf5.3_py3.11_env\\idf_version.txt'. (Diagnostic information. It can be ignored.)
+OPENOCD_SCRIPTS=C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\share\openocd\scripts
+IDF_CCACHE_ENABLE=1
+ESP_ROM_ELF_DIR=C:\Espressif\tools\esp-rom-elfs\20240305\
+IDF_PYTHON_ENV_PATH=C:\Espressif\python_env\idf5.3_py3.11_env
+ESP_IDF_VERSION=5.3
+PATH=C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-13.2.0_20240530\xtensa-esp-elf\bin;C:\Espressif\tools\esp-clang\16.0.1-fe4f10a809\esp-clang\bin;C:\Espressif\tools\riscv32-esp-elf\esp-13.2.0_20240530\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.3_py3.11_env\Scripts;C:\Espressif\frameworks\esp-idf-v5.3\tools;%PATH%
+IDF_DEACTIVATE_FILE_PATH=C:\Users\btp03\AppData\Local\Temp\tmp3n_hxq5tidf_10480
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.646
+!MESSAGE PATH: C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-13.2.0_20240530\xtensa-esp-elf\bin;C:\Espressif\tools\esp-clang\16.0.1-fe4f10a809\esp-clang\bin;C:\Espressif\tools\riscv32-esp-elf\esp-13.2.0_20240530\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.3_py3.11_env\Scripts;C:\Espressif\frameworks\esp-idf-v5.3\tools;%PATH%
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.647
+!MESSAGE [C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-13.2.0_20240530\xtensa-esp-elf\bin;C:\Espressif\tools\esp-clang\16.0.1-fe4f10a809\esp-clang\bin;C:\Espressif\tools\riscv32-esp-elf\esp-13.2.0_20240530\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.3_py3.11_env\Scripts;C:\Espressif\frameworks\esp-idf-v5.3\tools;%PATH%]
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.843
+!MESSAGE Executing C:\Espressif\python_env\idf5.3_py3.11_env/Scripts/python.exe -m pip list
+
+!ENTRY com.espressif.idf.core 1 0 2025-05-16 14:31:06.844
+!MESSAGE {USERDOMAIN_ROAMINGPROFILE=DESKTOP-I23F8MI, LOCALAPPDATA=C:\Users\btp03\AppData\Local, PROCESSOR_LEVEL=6, USERDOMAIN=DESKTOP-I23F8MI, LOGONSERVER=\\DESKTOP-I23F8MI, SESSIONNAME=Console, ALLUSERSPROFILE=C:\ProgramData, PROCESSOR_ARCHITECTURE=AMD64, PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules, IDF_TOOLS_PATH=C:/Espressif, SystemDrive=C:, OneDrive=C:\Users\btp03\OneDrive, APPDATA=C:\Users\btp03\AppData\Roaming, AppsRoot=D, USERNAME=btp03, ProgramFiles(x86)=C:\Program Files (x86), CommonProgramFiles=C:\Program Files\Common Files, Path=C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\dotnet\;C:\Program Files\CMake\bin;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\btp03\AppData\Local\Programs\Python\Python313\;C:\Users\btp03\AppData\Local\Programs\Python\Launcher\;C:\Users\btp03\AppData\Local\Microsoft\WindowsApps;C:\Users\btp03\AppData\Local\Programs\Microsoft VS Code\bin;C:\msys64\mingw64\share\openocd;C:\msys64\mingw64\bin;C:\Program Files\SEGGER\JLink_V828;C:\Program Files (x86)\arm-gnu-toolchain-12.2.rel1-mingw-w64-i686-arm-none-eabi\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\bin;C:\Users\btp03\Desktop\openocd-esp32-win64-0.12.0-esp32-20250422\openocd-esp32\share\openocd;, PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC, DriverData=C:\Windows\System32\Drivers\DriverData, OS=Windows_NT, COMPUTERNAME=DESKTOP-I23F8MI, PROCESSOR_REVISION=4501, CommonProgramW6432=C:\Program Files\Common Files, ComSpec=C:\Windows\system32\cmd.exe, ProgramData=C:\ProgramData, ProgramW6432=C:\Program Files, STM32CubeMX_PATH=C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX, HOMEPATH=\Users\btp03, SystemRoot=C:\Windows, TEMP=C:\Users\btp03\AppData\Local\Temp, HOMEDRIVE=C:, PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 69 Stepping 1, GenuineIntel, USERPROFILE=C:\Users\btp03, TMP=C:\Users\btp03\AppData\Local\Temp, CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files, ProgramFiles=C:\Program Files, PUBLIC=C:\Users\Public, NUMBER_OF_PROCESSORS=4, windir=C:\Windows}
+
+!ENTRY com.espressif.idf.ui 4 0 2025-05-16 14:31:12.510
+!MESSAGE Project cannot be created
+!STACK 1
+org.eclipse.core.internal.resources.ResourceException: Invalid project description.
+	at org.eclipse.core.internal.resources.Project.checkDescription(Project.java:211)
+	at org.eclipse.core.internal.resources.Project.assertCreateRequirements(Project.java:95)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:305)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:291)
+	at org.eclipse.tools.templates.freemarker.FMProjectGenerator.createProject(FMProjectGenerator.java:84)
+	at org.eclipse.tools.templates.freemarker.FMProjectGenerator.generate(FMProjectGenerator.java:65)
+	at org.eclipse.cdt.cmake.core.CMakeProjectGenerator.generate(CMakeProjectGenerator.java:58)
+	at com.espressif.idf.ui.templates.IDFProjectGenerator.generate(IDFProjectGenerator.java:67)
+	at org.eclipse.tools.templates.ui.TemplateWizard$1.execute(TemplateWizard.java:95)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.lambda$0(WorkspaceModifyOperation.java:112)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2451)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2476)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:131)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:124)
+Contains: OK
+Contains: C:\Espressif\frameworks\esp-idf-v5.3\power_supply overlaps the workspace location: C:\Espressif\frameworks\esp-idf-v5.3\power_supply
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2025-05-16 14:31:12.511
+!MESSAGE Invalid project description.
+!SUBENTRY 2 unknown 0 0 2025-05-16 14:31:12.511
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.core.resources 4 77 2025-05-16 14:31:12.511
+!MESSAGE C:\Espressif\frameworks\esp-idf-v5.3\power_supply overlaps the workspace location: C:\Espressif\frameworks\esp-idf-v5.3\power_supply

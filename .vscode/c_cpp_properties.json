@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${IDF_PATH}/components/**",
+                "${IDF_PATH}/components/freertos/include",
+                "${IDF_PATH}/components/esp_common/include",
+                "${IDF_PATH}/components/esp_system/include",
+                "${IDF_PATH}/components/driver/include",
+                "${IDF_PATH}/components/newlib/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compileCommands": [
+                "${workspaceFolder}/build/compile_commands.json"
+            ]
+        }
+    ],
+    "version": 4
+}
