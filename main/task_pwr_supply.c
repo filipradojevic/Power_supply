@@ -85,7 +85,7 @@ void task_pwr_supply(void *arg)
 	}
 }
 
-/* ============================ User Callbacks ============================= */
+/* ============================ User Functions ============================= */
 
 void can_init_msg(twai_message_t *msg, uint32_t id, uint32_t command, uint32_t value, uint8_t flag)
 {
