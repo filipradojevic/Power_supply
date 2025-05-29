@@ -102,66 +102,139 @@ esp_err_t fill_screen_color(esp_lcd_panel_handle_t panel_handle, uint16_t color)
 }
 
 void test_colors(esp_lcd_panel_handle_t panel_handle) {
-    while (1) {
-        fill_screen_color(panel_handle, ILI9341_BLACK);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_BLACK);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_NAVY);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_NAVY);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_DARKGREEN);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_DARKGREEN);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_DARKCYAN);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_DARKCYAN);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_MAROON);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_MAROON);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_PURPLE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_PURPLE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_OLIVE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_OLIVE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_LIGHTGREY);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_LIGHTGREY);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_DARKGREY);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_DARKGREY);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_BLUE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_BLUE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_GREEN);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_GREEN);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_CYAN);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_CYAN);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_RED);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_RED);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_MAGENTA);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_MAGENTA);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_YELLOW);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_YELLOW);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_WHITE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_WHITE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_ORANGE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_ORANGE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_GREENYELLOW);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_GREENYELLOW);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        fill_screen_color(panel_handle, ILI9341_PINK);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    fill_screen_color(panel_handle, ILI9341_PINK);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+}
+
+
+// Font za slova iz "Hello world" (H, e, l, o, w, r, d, space)
+const uint8_t font8x8_hello[][8] = {
+    // H (ASCII 72)
+    {0x42,0x42,0x42,0x7E,0x42,0x42,0x42,0x00},
+    // e (ASCII 101)
+    {0x00,0x00,0x3C,0x42,0x7E,0x40,0x3C,0x00},
+    // l (ASCII 108)
+    {0x30,0x10,0x10,0x10,0x10,0x10,0x38,0x00},
+    // o (ASCII 111)
+    {0x00,0x00,0x3C,0x42,0x42,0x42,0x3C,0x00},
+    // space (ASCII 32)
+    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+    // w (ASCII 119)
+    {0x00,0x00,0x42,0x42,0x5A,0x66,0x42,0x00},
+    // r (ASCII 114)
+    {0x00,0x00,0x5C,0x62,0x40,0x40,0x40,0x00},
+    // d (ASCII 100)
+    {0x0C,0x04,0x3C,0x44,0x44,0x44,0x3E,0x00},
+};
+
+// Funkcija da mapira karakter u indeks fonta
+int char_to_font_index(char c) {
+    switch(c) {
+        case 'H': return 0;
+        case 'e': return 1;
+        case 'l': return 2;
+        case 'o': return 3;
+        case ' ': return 4;
+        case 'w': return 5;
+        case 'r': return 6;
+        case 'd': return 7;
+        default:  return 4; // space za nepoznate karaktere
     }
 }
 
+// crtanje jednog piksela na poziciji (x,y) sa bojom (16-bit RGB565)
+void draw_pixel(esp_lcd_panel_handle_t panel, int x, int y, uint16_t color) {
+    esp_lcd_panel_draw_bitmap(panel, x, y, x+1, y+1, &color);
+}
+
+// crtanje jednog karaktera na (x,y)
+void draw_char(esp_lcd_panel_handle_t panel, char c, int x, int y, uint16_t color) {
+    int idx = char_to_font_index(c);
+    for (int row = 0; row < 8; row++) {
+        uint8_t row_bits = font8x8_hello[idx][row];
+        for (int col = 0; col < 8; col++) {
+            if (row_bits & (1 << (7 - col))) {
+                draw_pixel(panel, x + col, y + row, color);
+            }
+        }
+    }
+}
+
+// crtanje stringa
+void draw_string(esp_lcd_panel_handle_t panel, const char* text, int x, int y, uint16_t color) {
+    while (*text) {
+        draw_char(panel, *text, x, y, color);
+        x += 8; // pomeri za širinu fonta
+        text++;
+    }
+}
+
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 
 void app_main(void)
 {
@@ -169,8 +242,14 @@ void app_main(void)
 	if (ili9341_disp_initialization() != ESP_OK) {
         Error_Handler();
     }
-
-    test_colors(panel_handle);
+    while(1) {
+		
+		
+		fill_screen_color(panel_handle, ILI9341_GREEN);
+		draw_string(panel_handle,"Hello world", 10, 10, ILI9341_MAGENTA); // bela boja
+		vTaskDelay(pdMS_TO_TICKS(2000));
+	    test_colors(panel_handle);
+	}
 }
 
 static esp_err_t ili9341_disp_initialization(){
