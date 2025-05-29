@@ -1,0 +1,11 @@
+idf_component_register(
+    SRCS 
+        "spi_lcd_touch_example_main.c"
+        "ui/screens.c"
+        "ui/images.c"
+        "ui/styles.c"
+        "ui/ui.c"
+    INCLUDE_DIRS 
+        "." 
+        "ui"
+)
