@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "spi_lcd_touch",
-    "project_version":    "v1.0.1-1-g1e54f9b-dirty",
+    "project_version":    "v1.0.1-2-ge03541f-dirty",
     "project_path":       "C:/Users/btp03/workspace_test/spi_lcd_touch",
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.3",
     "build_dir":          "C:/Users/btp03/workspace_test/spi_lcd_touch/build",
@@ -1270,7 +1270,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__esp_lcd_gc9a01", "espressif__esp_lcd_ili9341", "espressif__esp_lcd_touch_stmpe610", "lvgl__lvgl" ],
             "file": "C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/btp03/workspace_test/spi_lcd_touch/main/lvgl_demo_ui.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/APP/main.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/CAN_BUS/task_can_receive.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/CAN_BUS/task_pwr_supply.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/ENCODER/task_encoder.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/LVGL_ILI9341/task_lvgl_ili9341.c" ],
+            "sources": [ "C:/Users/btp03/workspace_test/spi_lcd_touch/main/APP/main.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/CAN_BUS/task_can_receive.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/CAN_BUS/task_pwr_supply.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/ENCODER/task_encoder.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/LVGL_ILI9341/task_lvgl_ili9341.c", "C:/Users/btp03/workspace_test/spi_lcd_touch/main/LVGL_ILI9341/lvgl_screens.c" ],
             "include_dirs": [ ".", "APP/.", "CAN_BUS/.", "ENCODER/.", "LVGL_ILI9341/." ]
         },
         "mbedtls": {
