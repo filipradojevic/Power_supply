@@ -1,4 +1,4 @@
-/* * Data converted from C:/Users/btp03/workspace/Power_supply/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

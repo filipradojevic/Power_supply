@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/power_supply")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/spi_lcd_touch")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,10 +39,10 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/btp03/workspace/Power_supply/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
-  include("C:/Users/btp03/workspace/Power_supply/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
-  include("C:/Users/btp03/workspace/Power_supply/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
-  include("C:/Users/btp03/workspace/Power_supply/build/esp-idf/mbedtls/mbedtls/pkgconfig/cmake_install.cmake")
+  include("C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
+  include("C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
+  include("C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
+  include("C:/Users/btp03/workspace_test/spi_lcd_touch/build/esp-idf/mbedtls/mbedtls/pkgconfig/cmake_install.cmake")
 
 endif()
 

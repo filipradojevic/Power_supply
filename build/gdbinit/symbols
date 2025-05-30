@@ -2,8 +2,8 @@
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file C:/Users/btp03/workspace/Power_supply/build/bootloader/bootloader.elf
+    add-symbol-file C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file C:/Users/btp03/workspace/Power_supply/build/power_supply.elf
+file C:/Users/btp03/workspace_test/spi_lcd_touch/build/spi_lcd_touch.elf

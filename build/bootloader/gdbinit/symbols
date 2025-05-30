@@ -6,4 +6,4 @@ set confirm off
 set confirm on
 
 # Load application symbols
-file C:/Users/btp03/workspace/Power_supply/build/bootloader/bootloader.elf
+file C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader/bootloader.elf

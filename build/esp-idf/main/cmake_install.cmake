@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/btp03/workspace/Power_supply/main
+# Install script for directory: C:/Users/btp03/workspace_test/spi_lcd_touch/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/power_supply")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/spi_lcd_touch")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

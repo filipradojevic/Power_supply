@@ -10,18 +10,18 @@ if(NOT EXISTS "C:/Espressif/frameworks/esp-idf-v5.3/components/bootloader/subpro
   file(MAKE_DIRECTORY "C:/Espressif/frameworks/esp-idf-v5.3/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader"
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix"
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/tmp"
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/src/bootloader-stamp"
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/src"
-  "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/src/bootloader-stamp"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/tmp"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/src/bootloader-stamp"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/src"
+  "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/btp03/workspace/Power_supply/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "C:/Users/btp03/workspace_test/spi_lcd_touch/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

@@ -1,5 +1,0 @@
-{
-    "idf.portWin": "COM15",
-    "C_Cpp.errorSquiggles": "enabled",
-    "idf.flashType": "JTAG"
-}
