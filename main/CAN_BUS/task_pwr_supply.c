@@ -82,9 +82,7 @@ void task_pwr_supply(void *arg)
     twai_message_t rx_msg;
     TickType_t timeout = pdMS_TO_TICKS(1000);
     twai_message_t request_msg;
-    
     lvgl_data_t display;
-    
     static TickType_t last_sent_tick = 0;
 
     can_init_msg(&request_msg, CAN_REQUEST_PARAMETERS_ID, 0, 0, CAN_REQUEST_FLAG);
@@ -104,9 +102,7 @@ void task_pwr_supply(void *arg)
 	                if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID &&
 	                    rx_msg.data[1] == CAN_ANSWER_PARAMETERS_UNKNOWN_ID) {
 						
-						
-						
-						if ((now - last_sent_tick) >= pdMS_TO_TICKS(400)) {
+						if ((now - last_sent_tick) >= pdMS_TO_TICKS(250)) {
 						    display.voltage    = g_stats.output_voltage;
 						    display.current    = g_stats.output_current_1;
 						    display.limit      = g_stats.output_current_max;
@@ -117,17 +113,15 @@ void task_pwr_supply(void *arg)
 						    xQueueSend(lvgl_update_queue, &display, 0);
 						    last_sent_tick = now;
 						}
-						
 	                }
 	            }
-	        } 
-	        else {
-				//TODO we should think what the error will do
-	            gpio_set_level(GPIO_NUM_48, PIN_STATE_LOW);
-	            vTaskDelay(pdMS_TO_TICKS(50));
+	      } else {
+					//TODO we should think what the error will do
+					Error_Handler();
+			}
     	}
-	}
 }
+
 
 /* ============================ User Functions ============================= */
 

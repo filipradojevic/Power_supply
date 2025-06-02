@@ -73,7 +73,8 @@ typedef enum {
 
 /* User variables */
 static send_type_e current_send_flag = SEND_VOLTAGE;
-volatile int encoderPos = 0;
+volatile int encoder_voltage = 0;
+volatile int encoder_current = 0;
 uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;
 uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;
 
@@ -117,16 +118,17 @@ void task_encoder(void *arg) {
             }
 
             if (step != 0) {
-                encoderPos += step;
 
                 /* Check the type of command */
                 if (current_send_flag == SEND_VOLTAGE) {
+					encoder_voltage += step;
                     uint32_t new_voltage_value = pack_current_voltage();
 
 					twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
 					
 					xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
                 } else {
+					encoder_current += step;
                     uint32_t new_current_limit = pack_current_limit();
                     
                     twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
@@ -139,7 +141,7 @@ void task_encoder(void *arg) {
         }else if (activated_handle == switch_semaphore) {
             xSemaphoreTake(switch_semaphore, 0);
 
-            for (i = 0; i < 1000; i++);
+            for (i = 0; i < 500; i++);
 
             /* Read button state again to verify rising edge of button signal */
             currentButtonState = gpio_get_level(ENCODER_SW_PIN);
@@ -191,16 +193,16 @@ void twai_send_current(uint32_t new_current_limit, uint32_t command){
 /* Packing structure for voltage */
 uint32_t pack_current_limit(){
     /* Formula for new current limit to be send */
-	int32_t new_current_limit = (int32_t)CAN_DEFAULT_CURRENT_LIMIT + encoderPos * (int32_t)CURRENT_STEP_HEX;
+	int32_t new_current_limit = (int32_t)CAN_DEFAULT_CURRENT_LIMIT + encoder_current * (int32_t)CURRENT_STEP_HEX;
 
     /* Check limits */
     if (new_current_limit < (int32_t)MIN_CURRENT_LIMIT_VALUE)
         new_current_limit = (int32_t)MIN_CURRENT_LIMIT_VALUE;
-		encoderPos = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
+		encoder_current = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
     
     if (new_current_limit > (int32_t)MAX_CURRENT_LIMIT_VALUE)
         new_current_limit = (int32_t)MAX_CURRENT_LIMIT_VALUE;
-		encoderPos = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
+		encoder_current = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
 
 	curr_current_value = (uint32_t)new_current_limit;
     return curr_current_value;
@@ -209,16 +211,16 @@ uint32_t pack_current_limit(){
 /* Packing structure for current limit */
 uint32_t pack_current_voltage(){
 	/* Formula for new voltage to be send */
-    int32_t new_voltage = (int32_t)CAN_DEFAULT_VOLTAGE_VALUE + encoderPos * (int32_t)VOLTAGE_STEP_HEX;
+    int32_t new_voltage = (int32_t)CAN_DEFAULT_VOLTAGE_VALUE + encoder_voltage * (int32_t)VOLTAGE_STEP_HEX;
 	
 	/* Check limits */
     if (new_voltage < (int32_t)MIN_VOLTAGE_VALUE)
         new_voltage = (int32_t)MIN_VOLTAGE_VALUE;								
-		encoderPos = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
+		encoder_voltage = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
     
     if (new_voltage > (int32_t)MAX_VOLTAGE_VALUE)
         new_voltage = (int32_t)MAX_VOLTAGE_VALUE;
-		encoderPos = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
+		encoder_voltage = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
 
     curr_voltage_value = (uint32_t)new_voltage;
 

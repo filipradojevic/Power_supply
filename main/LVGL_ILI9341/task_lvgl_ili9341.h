@@ -82,6 +82,19 @@
 #define EXAMPLE_LVGL_TASK_PRIORITY     2
 
 
+/* Range for ARC's*/
+#define LVGL_ARC_VOLTAGE_MIN 410
+#define LVGL_ARC_VOLTAGE_MAX 590
+#define LVGL_ARC_CURRENT_MIN 0
+#define LVGL_ARC_CURRENT_MAX 600
+
+/* Range for SLIDER's*/
+#define LVGL_SLIDER_POWER_MIN 0
+#define LVGL_SLIDER_POWER_MAX 3540
+#define LVGL_SLIDER_TEMP_MIN 0
+#define LVGL_SLIDER_TEMP_MAX 100
+
+
 /******************************************************************************* 
  * Structures
  ******************************************************************************/
@@ -98,6 +111,7 @@ void increase_lvgl_tick(void *arg);
 bool lvgl_lock(int timeout_ms);
 void lvgl_unlock(void);
 void update_lvgl_display(const lvgl_data_t *data, bool *flag);
+void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max);
 
 
 

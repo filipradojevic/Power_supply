@@ -175,7 +175,7 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Limit_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_label = obj;
-            lv_obj_set_pos(obj, 132, 195);
+            lv_obj_set_pos(obj, 136, 195);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Current Limit [A]");
@@ -194,7 +194,7 @@ void create_main_ui(lv_disp_t *disp)
             // Power_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.power_label = obj;
-            lv_obj_set_pos(obj, -1, 9);
+            lv_obj_set_pos(obj, 0, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Power [W]");
@@ -212,7 +212,7 @@ void create_main_ui(lv_disp_t *disp)
             // Temp_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.temp_label = obj;
-            lv_obj_set_pos(obj, 132, 9);
+            lv_obj_set_pos(obj, 134, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Temperature [°C]");
@@ -259,7 +259,7 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Limit_Label_1
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_label_1 = obj;
-            lv_obj_set_pos(obj, -1, 195);
+            lv_obj_set_pos(obj, -2, 195);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Efficiency [%]");
@@ -286,8 +286,8 @@ void create_main_ui(lv_disp_t *disp)
             // LED
             lv_obj_t *obj = lv_led_create(parent_obj);
             objects.led = obj;
-            lv_obj_set_pos(obj, 290, 200);
-            lv_obj_set_size(obj, 10, 8);
+            lv_obj_set_pos(obj, 292, 200);
+            lv_obj_set_size(obj, 8, 8);
             lv_led_set_color(obj, lv_color_hex(0xff00ff26));
             lv_led_set_brightness(obj, 180);
         }

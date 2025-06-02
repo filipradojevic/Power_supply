@@ -80,6 +80,7 @@ extern volatile int encoderPos;
 const int64_t debounce_us = 1000;
 esp_err_t esp_err;
 
+
 /* LVGL variables */
 lv_disp_t *global_disp; /* Global Current Active Display */
 lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
