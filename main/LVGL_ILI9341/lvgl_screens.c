@@ -8,6 +8,7 @@
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
+#include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -41,6 +42,7 @@
 #include "task_lvgl_ili9341.h"
 #include "task_can_receive.h"
 #include "task_pwr_supply.h"
+#include "lvgl_screens.h"
 
 extern ui_objects_t objects;
 extern lv_disp_t *global_disp;
@@ -91,7 +93,7 @@ void create_intro_ui(lv_disp_t *disp)
         }
         {
             lv_obj_t *obj = lv_label_create(parent_obj);
-            objects.obj3 = obj;
+            objects.obj2 = obj;
             lv_obj_set_pos(obj, 74, 139);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -100,7 +102,7 @@ void create_intro_ui(lv_disp_t *disp)
         }
         {
             lv_obj_t *obj = lv_label_create(parent_obj);
-            objects.obj4 = obj;
+            objects.obj3 = obj;
             lv_obj_set_pos(obj, 74, 174);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -133,35 +135,14 @@ void create_main_ui(lv_disp_t *disp)
     {
         lv_obj_t *parent_obj = obj;
         {
-            lv_obj_t *obj = lv_label_create(parent_obj);
-            objects.obj0 = obj;
-            lv_obj_set_pos(obj, 0, 195);
-            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_text_color(obj, lv_color_hex(0xff2196f3), LV_PART_MAIN | LV_STATE_CHECKED);
-            lv_label_set_text(obj, "Made by: BetaTehPro");
-        }
-        {
-            // Command_Roller
-            lv_obj_t *obj = lv_roller_create(parent_obj);
-            objects.command_roller = obj;
-            lv_obj_set_pos(obj, 0, 58);
-            lv_obj_set_size(obj, 114, 109);
-            lv_roller_set_options(obj, "Voltage_Out\nCurrent_Limit", LV_ROLLER_MODE_NORMAL);
-            lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-        }
-        	//Arc for voltage
-        {
             lv_obj_t *obj = lv_arc_create(parent_obj);
-            objects.obj1 = obj;
-            lv_obj_set_pos(obj, 128, 75);
-            lv_obj_set_size(obj, 75, 75);
-            lv_arc_set_range(obj, 41, 59);
-            lv_arc_set_value(obj, 25);
+            objects.obj0 = obj;
+            lv_obj_set_pos(obj, 29, 69);
+            lv_obj_set_size(obj, 103, 99);
+            lv_arc_set_range(obj, 408, 582);
+            lv_arc_set_value(obj, 495);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_rounded(obj, true, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_CHECKED);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xff2196f3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
@@ -169,16 +150,14 @@ void create_main_ui(lv_disp_t *disp)
             lv_obj_set_style_arc_width(obj, 2121, LV_PART_KNOB | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xff000000), LV_PART_KNOB | LV_STATE_DEFAULT);
         }
-        //Arc for curr
         {
             lv_obj_t *obj = lv_arc_create(parent_obj);
-            objects.obj2 = obj;
-            lv_obj_set_pos(obj, 222, 75);
-            lv_obj_set_size(obj, 75, 75);
-            lv_arc_set_range(obj, 41, 59);
+            objects.obj1 = obj;
+            lv_obj_set_pos(obj, 178, 68);
+            lv_obj_set_size(obj, 103, 99);
+            lv_arc_set_range(obj, 0, 600);
             lv_arc_set_value(obj, 25);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_rounded(obj, true, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xff2196f3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
@@ -187,7 +166,7 @@ void create_main_ui(lv_disp_t *disp)
             // Voltage_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.voltage_label = obj;
-            lv_obj_set_pos(obj, 126, 151);
+            lv_obj_set_pos(obj, 37, 157);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Voltage [V]");
@@ -196,16 +175,16 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Limit_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_label = obj;
-            lv_obj_set_pos(obj, 174, 195);
+            lv_obj_set_pos(obj, 132, 195);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_label_set_text(obj, "Curr Limit [A]");
+            lv_label_set_text(obj, "Current Limit [A]");
         }
         {
             // Vol_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.vol_change = obj;
-            lv_obj_set_pos(obj, 157, 105);
+            lv_obj_set_pos(obj, 68, 110);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -215,7 +194,7 @@ void create_main_ui(lv_disp_t *disp)
             // Power_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.power_label = obj;
-            lv_obj_set_pos(obj, 1, 9);
+            lv_obj_set_pos(obj, -1, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Power [W]");
@@ -224,7 +203,7 @@ void create_main_ui(lv_disp_t *disp)
             // Power_value
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.power_value = obj;
-            lv_obj_set_pos(obj, 83, 9);
+            lv_obj_set_pos(obj, 81, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "200");
@@ -233,7 +212,7 @@ void create_main_ui(lv_disp_t *disp)
             // Temp_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.temp_label = obj;
-            lv_obj_set_pos(obj, 143, 9);
+            lv_obj_set_pos(obj, 132, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Temperature [°C]");
@@ -242,7 +221,7 @@ void create_main_ui(lv_disp_t *disp)
             // Temp_value
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.temp_value = obj;
-            lv_obj_set_pos(obj, 278, 10);
+            lv_obj_set_pos(obj, 264, 9);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "20");
@@ -251,7 +230,7 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Limit_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_change = obj;
-            lv_obj_set_pos(obj, 278, 195);
+            lv_obj_set_pos(obj, 264, 195);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "2");
@@ -260,7 +239,7 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_change = obj;
-            lv_obj_set_pos(obj, 251, 105);
+            lv_obj_set_pos(obj, 221, 111);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -271,10 +250,55 @@ void create_main_ui(lv_disp_t *disp)
             // Voltage_Label_1
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.voltage_label_1 = obj;
-            lv_obj_set_pos(obj, 219, 151);
+            lv_obj_set_pos(obj, 187, 157);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Current [A]");
+        }
+        {
+            // Curr_Limit_Label_1
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.curr_limit_label_1 = obj;
+            lv_obj_set_pos(obj, -1, 195);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(obj, "Efficiency [%]");
+        }
+        {
+            // Slider_power
+            lv_obj_t *obj = lv_slider_create(parent_obj);
+            objects.slider_power = obj;
+            lv_obj_set_pos(obj, -1, 34);
+            lv_obj_set_size(obj, 108, 1);
+            lv_slider_set_range(obj, 0, 3540);
+            lv_slider_set_value(obj, 600, LV_ANIM_OFF);
+        }
+        {
+            // Slider_temp
+            lv_obj_t *obj = lv_slider_create(parent_obj);
+            objects.slider_temp = obj;
+            lv_obj_set_pos(obj, 134, 33);
+            lv_obj_set_size(obj, 139, 1);
+            lv_slider_set_range(obj, 0, 100);
+            lv_slider_set_value(obj, 60, LV_ANIM_OFF);
+        }
+        {
+            // LED
+            lv_obj_t *obj = lv_led_create(parent_obj);
+            objects.led = obj;
+            lv_obj_set_pos(obj, 290, 200);
+            lv_obj_set_size(obj, 10, 8);
+            lv_led_set_color(obj, lv_color_hex(0xff00ff26));
+            lv_led_set_brightness(obj, 180);
+        }
+        {
+            // Effieciency
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.effieciency = obj;
+            lv_obj_set_pos(obj, 98, 195);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(obj, "96");
         }
     }
 }

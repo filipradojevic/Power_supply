@@ -44,7 +44,8 @@
 
 /* LVGL Library */
 #include "lvgl.h"
-
+#include "lvgl_screens.h"
+#include "task_pwr_supply.h"
 
 /******************************************************************************* 
  * Defines 
@@ -84,27 +85,8 @@
 /******************************************************************************* 
  * Structures
  ******************************************************************************/
-typedef struct {
-    lv_obj_t *intro;
-    lv_obj_t *main;
-    lv_obj_t *obj0;
-    lv_obj_t *command_roller;
-    lv_obj_t *obj1;
-    lv_obj_t *obj2;
-    lv_obj_t *obj3;
-    lv_obj_t *obj4;
-    lv_obj_t *voltage_label;
-    lv_obj_t *curr_limit_label;
-    lv_obj_t *vol_change;
-    lv_obj_t *power_label;
-    lv_obj_t *power_value;
-    lv_obj_t *temp_label;
-    lv_obj_t *temp_value;
-    lv_obj_t *curr_limit_change;
-    lv_obj_t *curr_change;
-    lv_obj_t *voltage_label_1;
-    
-} ui_objects_t;
+
+
 
 /******************************************************************************* 
  * Prototypes
@@ -115,6 +97,7 @@ void lvgl_port_update_callback(lv_disp_drv_t *drv);
 void increase_lvgl_tick(void *arg);
 bool lvgl_lock(int timeout_ms);
 void lvgl_unlock(void);
+void update_lvgl_display(const lvgl_data_t *data, bool *flag);
 
 
 

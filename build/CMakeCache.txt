@@ -15,7 +15,7 @@
 ########################
 
 //No help, variable specified on the command line.
-CCACHE_ENABLE:UNINITIALIZED=1
+CCACHE_ENABLE:UNINITIALIZED=0
 
 //Path to a program.
 CCACHE_FOUND:FILEPATH=C:/Espressif/tools/ccache/4.10.2/ccache-4.10.2-windows-x86_64/ccache.exe
@@ -310,6 +310,9 @@ ENABLE_PROGRAMS:BOOL=
 //Build Mbed TLS tests.
 ENABLE_TESTING:BOOL=
 
+//No help, variable specified on the command line.
+ESP_PLATFORM:UNINITIALIZED=1
+
 //Generate the auto-generated files as needed
 GEN_FILES:BOOL=
 
@@ -348,6 +351,12 @@ Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 Mbed TLS_SOURCE_DIR:STATIC=C:/Espressif/frameworks/esp-idf-v5.3/components/mbedtls/mbedtls
+
+//No help, variable specified on the command line.
+PYTHON:UNINITIALIZED=C:\Espressif\python_env\idf5.3_py3.11_env\Scripts\python.exe
+
+//No help, variable specified on the command line.
+PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 
 //Allow unsafe builds. These builds ARE NOT SECURE.
 UNSAFE_BUILD:BOOL=OFF
@@ -585,7 +594,7 @@ C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS:INTERNAL=1
 //Details about finding Git
 FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/Program Files/Git/cmd/git.exe][v2.49.0.windows.1()]
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[C:/Users/btp03/AppData/Local/Programs/Python/Python313/python.exe][cfound components: Interpreter ][v3.13.3()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[C:/Espressif/python_env/idf5.3_py3.11_env/Scripts/python.exe][cfound components: Interpreter ][v3.11.2()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //ADVANCED property for variable: GIT_EXECUTABLE
@@ -596,11 +605,10 @@ _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=C:/Program Files (x86)/spi_lc
 _Python3_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python3_Development_REASON_FAILURE:INTERNAL=
-//Path to a program.
-_Python3_EXECUTABLE:INTERNAL=C:/Users/btp03/AppData/Local/Programs/Python/Python313/python.exe
+_Python3_EXECUTABLE:INTERNAL=C:/Espressif/python_env/idf5.3_py3.11_env/Scripts/python.exe
 //Python3 Properties
-_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;13;3;32;64;;;abi3;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Lib;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Lib;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Lib\site-packages;C:\Users\btp03\AppData\Local\Programs\Python\Python313\Lib\site-packages
-_Python3_INTERPRETER_SIGNATURE:INTERNAL=8b9bbd4a14814004787d574dbc5462e0
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;11;2;32;64;;;abi3;C:\Espressif\tools\idf-python\3.11.2\Lib;C:\Espressif\python_env\idf5.3_py3.11_env\Lib;C:\Espressif\python_env\idf5.3_py3.11_env\Lib\site-packages;C:\Espressif\python_env\idf5.3_py3.11_env\Lib\site-packages
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=f3e0df63b7888e7a25f6a4f491576b51
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 

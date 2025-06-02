@@ -99,6 +99,16 @@ typedef struct {
     uint32_t  unknown;
 } system_stats_t;
 
+
+typedef struct {
+	float voltage;
+    float current;
+    float limit;
+    float temp;
+    float power;     // npr. 121 (integer power = voltage * current)
+    float efficiency;
+} lvgl_data_t;
+
 /******************************************************************************* 
  * Global Variables 
  ******************************************************************************/

@@ -20,6 +20,7 @@
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
+#include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -53,6 +54,7 @@
 #include "task_lvgl_ili9341.h"
 #include "task_can_receive.h"
 #include "task_pwr_supply.h"
+#include "lvgl_screens.h"
 
 /*******************************************************************************
  * Defines
@@ -76,10 +78,14 @@ uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;
 uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;
 
 /* FreeRTOS objects */
+extern QueueHandle_t lvgl_voltage_queue;
+extern QueueHandle_t lvgl_current_queue;
 extern SemaphoreHandle_t encoder_semaphore;
 extern SemaphoreHandle_t switch_semaphore;
 extern SemaphoreHandle_t command_semaphore;
 extern QueueSetHandle_t xQueueSet;
+
+extern ui_objects_t objects;
 
 /*******************************************************************************
  * Main function
@@ -117,11 +123,15 @@ void task_encoder(void *arg) {
                 if (current_send_flag == SEND_VOLTAGE) {
                     uint32_t new_voltage_value = pack_current_voltage();
 
-                    twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+					twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+					
+					xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
                 } else {
                     uint32_t new_current_limit = pack_current_limit();
                     
                     twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
+                    
+                    xQueueSend(lvgl_current_queue, &new_current_limit, 0);
                 }
             }
         
@@ -137,7 +147,6 @@ void task_encoder(void *arg) {
             if (currentButtonState == 0) {
                 current_send_flag = (current_send_flag == SEND_VOLTAGE) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
             }
-        
             
         /* Triggered by Timer interrupt: send command to avoid reset of a device */
         }else if(activated_handle == command_semaphore){

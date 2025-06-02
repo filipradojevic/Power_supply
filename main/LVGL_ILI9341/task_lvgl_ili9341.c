@@ -13,6 +13,7 @@
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
+#include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -46,6 +47,7 @@
 #include "task_lvgl_ili9341.h"
 #include "task_can_receive.h"
 #include "task_pwr_supply.h"
+#include "lvgl_screens.h"
 
 /*******************************************************************************
  * Defines
@@ -67,35 +69,123 @@ extern lv_disp_t *disp;
 extern ui_objects_t objects;
 
 /* FreeRTOS objects */
+extern QueueHandle_t lvgl_voltage_queue;
+extern QueueHandle_t lvgl_current_queue;
+extern QueueHandle_t lvgl_update_queue;
+extern QueueSetHandle_t xQueueSetLvgl;
+
 extern SemaphoreHandle_t lvgl_mux;
 
 /*******************************************************************************
- * Prototyp of functions
+ * Main function
  ******************************************************************************/
-
-
-
 
 void task_lvgl_ili9341(void *arg)
 {
-    uint32_t task_delay_ms = EXAMPLE_LVGL_TASK_MAX_DELAY_MS;
+    QueueSetMemberHandle_t activated_queue = NULL;
+    lvgl_data_t lvgl_received;
+    uint32_t received_value;
+    char value_str[16];
+    bool flag = 1;
+    static TickType_t last_lvgl_tick = 0;
+
+
     while (1) {
-        // Lock the mutex due to the LVGL APIs are not thread-safe
-        if (lvgl_lock(-1)) {
-            task_delay_ms = lv_timer_handler();
+        activated_queue = xQueueSelectFromSet(xQueueSetLvgl, portMAX_DELAY);
+
+        if (activated_queue == lvgl_voltage_queue) {
             
-            // Release the mutex
-            lvgl_unlock();
-        }
-        if (task_delay_ms > EXAMPLE_LVGL_TASK_MAX_DELAY_MS) {
-            task_delay_ms = EXAMPLE_LVGL_TASK_MAX_DELAY_MS;
-        } else if (task_delay_ms < EXAMPLE_LVGL_TASK_MIN_DELAY_MS) {
-            task_delay_ms = EXAMPLE_LVGL_TASK_MIN_DELAY_MS;
-        }
-        vTaskDelay(pdMS_TO_TICKS(task_delay_ms));
+            if (xQueueReceive(lvgl_voltage_queue, &received_value, 0) == pdTRUE) {
+
+			    float voltage = ((float)received_value / 1000.0f) - 1.5f;
+			
+			    if (lvgl_lock(-1)) {
+			        snprintf(value_str, sizeof(value_str), "%.1f", voltage);  // npr. "48.2 V"
+			        
+			        lv_label_set_text(objects.vol_change, value_str);
+			        
+			        // Za arc - konverzija float -> int unutar opsega 410 - 590
+					int arc_value = (int)(voltage * 10.0f);  // 465
+        			
+        			lv_arc_set_value(objects.obj0, arc_value);
+        			
+        			lv_timer_handler();
+			        
+			        lvgl_unlock();
+			    }
+			}
+
+        } else if (activated_queue == lvgl_current_queue) {
+            
+            if (xQueueReceive(lvgl_current_queue, &received_value, 0) == pdTRUE) {
+    
+			    float current = (float)received_value / 100.0f;
+			
+			    if (lvgl_lock(-1)) {
+			        snprintf(value_str, sizeof(value_str), "%.1f", current);
+			        
+			        lv_label_set_text(objects.curr_limit_change, value_str);
+			        
+			        lv_timer_handler();
+			        lvgl_unlock();
+			    }
+			}
+        } else if (activated_queue == lvgl_update_queue) {
+			  if (xQueueReceive(lvgl_update_queue, &lvgl_received, 0) == pdTRUE) {
+			  	update_lvgl_display(&lvgl_received, &flag);
+    		}
+		} 
     }
 }
 
+void update_lvgl_display(const lvgl_data_t *data, bool *flag) {
+    char value_str[32];
+    static bool led_state = false;  // Pamti trenutno stanje LED
+
+    if (lvgl_lock(-1)) {
+        if (*flag == 1) {
+            // voltage sa jednom decimalom
+            snprintf(value_str, sizeof(value_str), "%.1f", data->voltage);
+            lv_label_set_text(objects.vol_change, value_str);
+            lv_arc_set_value(objects.obj0, (int)(data->voltage * 10));
+            *flag = 0;
+        }
+
+        // current
+        snprintf(value_str, sizeof(value_str), "%.1f", data->current);
+        lv_label_set_text(objects.curr_change, value_str);
+        lv_arc_set_value(objects.obj1, (int)(data->current * 10));
+
+        // limit
+        snprintf(value_str, sizeof(value_str), "%.1f", data->limit);
+        lv_label_set_text(objects.curr_limit_change, value_str);
+
+        // temperature
+        snprintf(value_str, sizeof(value_str), "%d", (int)data->temp);
+        lv_label_set_text(objects.temp_value, value_str);
+        lv_slider_set_value(objects.slider_temp, (int)(data->temp), LV_ANIM_OFF);
+
+        // power
+        snprintf(value_str, sizeof(value_str), "%d", (int)data->power);
+        lv_label_set_text(objects.power_value, value_str);
+        lv_slider_set_value(objects.slider_power, (int)(data->power), LV_ANIM_OFF);
+
+        // efficiency
+        snprintf(value_str, sizeof(value_str), "%.1f", data->efficiency);
+        lv_label_set_text(objects.effieciency, value_str);
+
+        // --- LED TOGGLE ---
+        if (led_state) {
+            lv_led_set_brightness(objects.led, 180); // upaljena
+        } else {
+            lv_led_set_brightness(objects.led, 0);   // ugašena
+        }
+        led_state = !led_state;  // obrni stanje
+
+        lv_timer_handler();
+        lvgl_unlock();
+    }
+}
 
 bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {

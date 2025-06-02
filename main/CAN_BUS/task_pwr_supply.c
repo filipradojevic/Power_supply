@@ -20,6 +20,7 @@
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
+#include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -67,16 +68,24 @@ volatile system_stats_t g_stats;
 esp_err_t esp_err_pwr;
 
 /* FreeRTOS objects */
+extern QueueHandle_t lvgl_voltage_queue;
+extern QueueHandle_t lvgl_current_queue;
+extern QueueHandle_t lvgl_update_queue;
 extern QueueHandle_t queue_can;
 
 /*******************************************************************************
  * Main function
  ******************************************************************************/
+ 
 void task_pwr_supply(void *arg)
 {
     twai_message_t rx_msg;
     TickType_t timeout = pdMS_TO_TICKS(1000);
     twai_message_t request_msg;
+    
+    lvgl_data_t display;
+    
+    static TickType_t last_sent_tick = 0;
 
     can_init_msg(&request_msg, CAN_REQUEST_PARAMETERS_ID, 0, 0, CAN_REQUEST_FLAG);
 
@@ -89,13 +98,26 @@ void task_pwr_supply(void *arg)
 	
 					/* PARSE THE DATA */
 	                parse_statistics(rx_msg.data);
+	                
+	                TickType_t now = xTaskGetTickCount();
 	
 	                if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID &&
 	                    rx_msg.data[1] == CAN_ANSWER_PARAMETERS_UNKNOWN_ID) {
-	                    
-	                    //TODO You parsed whole message -> Display update
-	                    vTaskDelay(pdMS_TO_TICKS(10));
-	                    
+						
+						
+						
+						if ((now - last_sent_tick) >= pdMS_TO_TICKS(400)) {
+						    display.voltage    = g_stats.output_voltage;
+						    display.current    = g_stats.output_current_1;
+						    display.limit      = g_stats.output_current_max;
+						    display.temp       = g_stats.output_temp;
+						    display.power      = g_stats.output_voltage * g_stats.output_current_1;
+						    display.efficiency = g_stats.efficiency;
+						
+						    xQueueSend(lvgl_update_queue, &display, 0);
+						    last_sent_tick = now;
+						}
+						
 	                }
 	            }
 	        } 

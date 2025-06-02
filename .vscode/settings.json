@@ -3,5 +3,13 @@
     "idf.toolsPathWin": "C:\\Espressif",
     "idf.pythonInstallPath": "C:\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
     "idf.portWin": "COM14",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "esp_lcd_ili9341.h": "c",
+        "lvgl.h": "c",
+        "task_lvgl_ili9341.h": "c",
+        "task_encoder.h": "c",
+        "main.h": "c"
+    }
 }

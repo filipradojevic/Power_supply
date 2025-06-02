@@ -15,6 +15,7 @@
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
+#include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -48,17 +49,21 @@
 #include "task_lvgl_ili9341.h"
 #include "task_can_receive.h"
 #include "task_pwr_supply.h"
+#include "lvgl_screens.h"
 
 
 /*******************************************************************************
  * Defines
  ******************************************************************************/
 
-#define CAN_QUEUE_MAX_SIZE 128
-#define QUEUE_SET_LENGTH   3
-#define MIN_PRIO_TASK 	   1
-#define MEDIUM_PRIO_TASK   3
-#define MAX_PRIO_TASK 	   5
+#define CAN_QUEUE_MAX_SIZE     128
+#define QUEUE_SET_LENGTH       3
+#define QUEUE_SET_LVGL_LENGHT  3
+#define MIN_PRIO_TASK 	       1
+#define MEDIUM_LOW_PRIO_TASK   2
+#define MEDIUM_PRIO_TASK       3
+#define MEDIUM_HIGH_PRIO_TASK  4
+#define MAX_PRIO_TASK 	       5
 
 #define TIMER_BASE_CLK        80000000                         /* 80MHz clock */
 #define TIMER_DIVIDER         8000               /* 80 MHz / 8000 = 10,000 Hz */
@@ -87,9 +92,13 @@ ui_objects_t objects;
 /* FreeRTOS objects */
 QueueHandle_t queue_can = NULL;
 QueueSetHandle_t xQueueSet = NULL;
+QueueSetHandle_t xQueueSetLvgl = NULL;
 SemaphoreHandle_t encoder_semaphore = NULL;
 SemaphoreHandle_t switch_semaphore = NULL;
 SemaphoreHandle_t command_semaphore = NULL;
+QueueHandle_t lvgl_voltage_queue = NULL;
+QueueHandle_t lvgl_current_queue = NULL;
+QueueHandle_t lvgl_update_queue = NULL;
 SemaphoreHandle_t lvgl_mux = NULL;
 /*******************************************************************************
  * Prototyp of functions
@@ -126,7 +135,7 @@ void encoder_isr_handler(void* arg);
 
 
 /*******************************************************************************
- * Main
+ * Main function
  ******************************************************************************/
 
 void app_main() {
@@ -139,6 +148,12 @@ void app_main() {
     if (rtos_objects_init() != ESP_OK) {
         Error_Handler();
     }
+   
+    /* Lock the mutex due to the LVGL APIs are not thread-safe */
+    if (lvgl_lock(-1)) {
+        create_main_ui(disp);
+        lvgl_unlock();
+    }
     
     /* Calling LVGL handler to update the screen */
     if (lvgl_lock(-1)) {
@@ -146,20 +161,15 @@ void app_main() {
 	    lvgl_unlock();
     }
     
-    /* Lock the mutex due to the LVGL APIs are not thread-safe */
-    if (lvgl_lock(-1)) {
-        create_intro_ui(disp);
-        lvgl_unlock();
-    }
-    
+    /* Creating RTOS TASKS */
 	if (xTaskCreate(task_lvgl_ili9341, "LVGL", EXAMPLE_LVGL_TASK_STACK_SIZE, NULL,
-	 EXAMPLE_LVGL_TASK_PRIORITY, NULL) != pdPASS){
+	 MAX_PRIO_TASK, NULL) != pdPASS){
 		 Error_Handler();
-	 }
+	}
 	
-    /** Create encoder task */
-    /*if (xTaskCreate(task_encoder, "Encode_and_send_cmd", 2048, NULL,
-     MAX_PRIO_TASK, NULL) != pdPASS) {
+    
+    if (xTaskCreate(task_encoder, "Encode_and_send_cmd", 2048, NULL,
+     MEDIUM_HIGH_PRIO_TASK, NULL) != pdPASS) {
         Error_Handler();
     }
     
@@ -169,10 +179,9 @@ void app_main() {
     }
 
     if (xTaskCreate(task_pwr_supply, "can_processing", 2048, NULL,
-     MEDIUM_PRIO_TASK, NULL) != pdPASS) {
+     MEDIUM_LOW_PRIO_TASK, NULL) != pdPASS) {
         Error_Handler();
-    }*/
-    
+    }
     
     /* Fallback loop, it should never be entered */
     while (1) {
@@ -211,12 +220,14 @@ static esp_err_t hardware_init(void) {
 
 /* Initialize FreeRTOS objects: CAN queue, semaphores, queue set */
 static esp_err_t rtos_objects_init(void) {
+    /* CAN Queue */
     queue_can = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(twai_message_t));
     if (queue_can == NULL) {
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
         return ESP_FAIL;
     }
-
+	
+	/* Encoder Queues */
     encoder_semaphore = xSemaphoreCreateBinary();
     if (encoder_semaphore == NULL) {
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
@@ -234,7 +245,26 @@ static esp_err_t rtos_objects_init(void) {
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
         return ESP_FAIL;
     }
+    
+    /* LVGL Queues */
+    lvgl_voltage_queue = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(uint32_t));
+    if (lvgl_voltage_queue == NULL){
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
 
+    lvgl_current_queue = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(uint32_t));
+    if (lvgl_current_queue == NULL){
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
+    
+    lvgl_update_queue = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(lvgl_data_t));
+    if (lvgl_update_queue == NULL){
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
+    
 	/* Creating Recursive Mutex bcs LVGL library is not THREAD-SAFE! */
     lvgl_mux = xSemaphoreCreateRecursiveMutex();
     if (lvgl_mux == NULL){
@@ -242,6 +272,7 @@ static esp_err_t rtos_objects_init(void) {
         return ESP_FAIL;
 	}
     
+    /* CAN Queue Set */
     xQueueSet = xQueueCreateSet(QUEUE_SET_LENGTH);
     
     if (xQueueSet == NULL) {
@@ -260,6 +291,25 @@ static esp_err_t rtos_objects_init(void) {
         return ESP_FAIL;
     }
     
+    /* L Queue Set */
+    xQueueSetLvgl = xQueueCreateSet(QUEUE_SET_LVGL_LENGHT);
+
+    if (xQueueSetLvgl == NULL) {
+        return ESP_FAIL;
+    }
+
+    if (xQueueAddToSet(lvgl_voltage_queue, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+
+    if (xQueueAddToSet(lvgl_current_queue, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+    
+    if (xQueueAddToSet(lvgl_update_queue, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+
     return ESP_OK;
 }
 
@@ -279,13 +329,10 @@ static esp_err_t led_initialization(void){
 /* Initialize hardware: Twai */
 static esp_err_t twai_initialization(void){
     /* Initialize the structure of a twai peripheral */
-    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_5, GPIO_NUM_4, TWAI_MODE_NORMAL);
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_7, GPIO_NUM_6, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();
-    twai_filter_config_t f_config = {
-        .acceptance_code = (0x1081407F << 3) | 0x04,
-        .acceptance_mask = (0x1FFFFFFF << 3) | 0x04,
-        .single_filter = true
-    };
+    twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
 
     if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_FAIL) {
         return ESP_FAIL;
