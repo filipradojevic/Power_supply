@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "spi_lcd_touch",
-    "project_version":    "v1.0.1-5-gb8c81f29-dirty",
+    "project_version":    "v1.0.1-6-g56c6da79-dirty",
     "project_path":       "C:/Users/btp03/workspace_test/spi_lcd_touch",
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.3",
     "build_dir":          "C:/Users/btp03/workspace_test/spi_lcd_touch/build",

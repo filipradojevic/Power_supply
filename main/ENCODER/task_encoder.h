@@ -38,6 +38,11 @@ typedef enum {
     SEND_CURRENT_LIMIT
 } send_type_e;
 
+typedef enum {
+    BUTTON_PRESSED = 0,
+    BUTTON_NOT_PRESSED
+} button_pressed_e;
+
 
 /*******************************************************************************
  * Function Prototypes

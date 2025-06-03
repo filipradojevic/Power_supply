@@ -67,6 +67,7 @@
 
 /* User variables */
 static send_type_e current_send_flag = SEND_VOLTAGE;
+button_pressed_e button_flag = BUTTON_NOT_PRESSED;
 volatile int encoder_voltage = 0;
 volatile int encoder_current = 0;
 uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;
@@ -80,6 +81,7 @@ static const int64_t STEP_DEBOUNCE_INTERVAL_US = 17500; // 50ms
 extern QueueHandle_t lvgl_voltage_queue;
 extern QueueHandle_t lvgl_current_queue;
 extern QueueHandle_t lvgl_bolding_update;
+extern QueueHandle_t lvgl_button_pressed;
 extern SemaphoreHandle_t encoder_semaphore;
 extern SemaphoreHandle_t switch_semaphore;
 extern SemaphoreHandle_t command_semaphore;
@@ -104,7 +106,7 @@ void task_encoder(void *arg) {
             xSemaphoreTake(encoder_semaphore, 0);
 
             /* Software debounce */
-            for (i = 0; i < 1000; i++);
+            for (i = 0; i < 2500; i++);
 
             int a = gpio_get_level(ENCODER_CLK_PIN);
             int b = gpio_get_level(ENCODER_DT_PIN);
@@ -125,24 +127,40 @@ void task_encoder(void *arg) {
 			    if ((now_pulse - last_step_time_encoder_pulse_us) < STEP_DEBOUNCE_INTERVAL_US) {
 			        continue;
 			    }
+			    
 			    last_step_time_encoder_pulse_us = now_pulse;
 			    
-                /* Check the type of command */
-                if (current_send_flag == SEND_VOLTAGE) {
-					encoder_voltage += step;
-                    uint32_t new_voltage_value = pack_current_voltage();
-
-					twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+			    /* When the button is not pressed, we select on display what we want to change */
+			    /* It's acting like menu to choose whitch one we want to change it */
+			    if (button_flag == BUTTON_NOT_PRESSED){
 					
-					xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
-                } else {
-					encoder_current += step;
-                    uint32_t new_current_limit = pack_current_limit();
-                    
-                    twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
-                    
-                    xQueueSend(lvgl_current_queue, &new_current_limit, 0);
-                }
+					/* And here we are setting the flag and send to the lvgl_ili9341 task */
+					current_send_flag = (step > 0) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
+			    
+			   		xQueueSend(lvgl_bolding_update, &current_send_flag, 0);	
+				}
+			    
+			    
+			    if (button_flag == BUTTON_PRESSED){
+					/* Check the type of command */
+		            if (current_send_flag == SEND_VOLTAGE) {
+						encoder_voltage += step;
+		                uint32_t new_voltage_value = pack_current_voltage();
+		
+						twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+						
+						xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
+		            } else {
+						encoder_current += step;
+		                uint32_t new_current_limit = pack_current_limit();
+		                
+		                twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
+		                
+		                xQueueSend(lvgl_current_queue, &new_current_limit, 0);
+		            }	
+				}
+				
+                
             }
         
         /* Changes the flag for command by state of a switch */
@@ -160,16 +178,16 @@ void task_encoder(void *arg) {
 		    last_step_time_encoder_switch_us = now_switch;
 			
 			/* Software debounce */
-            for (i = 0; i < 500; i++);
-
+            for (i = 0; i < 2500; i++);
+			
             /* Read button state again to verify rising edge of button signal */
             currentButtonState = gpio_get_level(ENCODER_SW_PIN);
 
             if (currentButtonState == 0) {
-                current_send_flag = (current_send_flag == SEND_VOLTAGE) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
+                button_flag = (button_flag == BUTTON_PRESSED) ? BUTTON_NOT_PRESSED : BUTTON_PRESSED;
             }
             
-            xQueueSend(lvgl_bolding_update, &current_send_flag, 0);
+            xQueueSend(lvgl_button_pressed, &button_flag, 0);
             
         /* Triggered by Timer interrupt: send command to avoid reset of a device */
         }else if(activated_handle == command_semaphore){

@@ -97,6 +97,7 @@ QueueHandle_t lvgl_voltage_queue = NULL;
 QueueHandle_t lvgl_current_queue = NULL;
 QueueHandle_t lvgl_update_queue = NULL;
 QueueHandle_t lvgl_bolding_update = NULL;
+QueueHandle_t lvgl_button_pressed = NULL;
 SemaphoreHandle_t lvgl_mux = NULL;
 SemaphoreHandle_t encoder_semaphore = NULL;
 SemaphoreHandle_t switch_semaphore = NULL;
@@ -279,6 +280,12 @@ static esp_err_t rtos_objects_init(void) {
         return ESP_FAIL;
     }
     
+    lvgl_button_pressed = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(button_pressed_e));
+    if (lvgl_button_pressed == NULL){
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
+    
     watchdog_semaphore = xSemaphoreCreateBinary();
     if (watchdog_semaphore == NULL) {
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
@@ -335,6 +342,10 @@ static esp_err_t rtos_objects_init(void) {
     }
     
     if (xQueueAddToSet(lvgl_bolding_update, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+    
+    if (xQueueAddToSet(lvgl_button_pressed, xQueueSetLvgl) != pdPASS) {
         return ESP_FAIL;
     }
     

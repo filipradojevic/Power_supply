@@ -118,8 +118,6 @@ void create_main_ui(lv_disp_t *disp)
             lv_obj_set_pos(obj, 37, 157);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_color(obj, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);   // tamna siva pozadina (selektovan)
-   			lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);               // pozadina je vidljiva
     		lv_obj_set_style_pad_all(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);   
             lv_label_set_text(obj, "Voltage [V]");
         }
@@ -127,11 +125,9 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Limit_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_label = obj;
-            lv_obj_set_pos(obj, 134, 189);
+            lv_obj_set_pos(obj, 136, 189);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_color(obj, lv_color_hex(0x888888), LV_PART_MAIN | LV_STATE_DEFAULT);   // svetlija siva pozadina
-		    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
 		    lv_obj_set_style_pad_all(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Current Limit [A]");
         }

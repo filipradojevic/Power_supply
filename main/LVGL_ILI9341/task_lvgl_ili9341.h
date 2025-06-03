@@ -99,7 +99,10 @@
  * Structures
  ******************************************************************************/
 
-
+typedef enum{
+	ACTIVE_ENCODER = 0,
+	INACTIVE_ENCODER
+} encoder_active_flag_e;
 
 /******************************************************************************* 
  * Prototypes
@@ -110,10 +113,10 @@ void lvgl_port_update_callback(lv_disp_drv_t *drv);
 void increase_lvgl_tick(void *arg);
 bool lvgl_lock(int timeout_ms);
 void lvgl_unlock(void);
-void update_lvgl_display(const lvgl_data_t *data, bool *flag);
+void update_lvgl_display(const lvgl_data_t *data, bool *led_flag, button_pressed_e button_flag, send_type_e activity_encoder);
 void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max);
 void update_voltage_current_labels(send_type_e flag);
-
+void update_voltage_current_change(button_pressed_e flag_change, send_type_e flag_label);
 
 
 #endif /* MAIN_TASK_LVGL_PORT_H_ */
