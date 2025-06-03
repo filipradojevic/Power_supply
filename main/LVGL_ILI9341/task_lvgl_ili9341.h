@@ -112,6 +112,7 @@ bool lvgl_lock(int timeout_ms);
 void lvgl_unlock(void);
 void update_lvgl_display(const lvgl_data_t *data, bool *flag);
 void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max);
+void update_voltage_current_labels(send_type_e flag);
 
 
 

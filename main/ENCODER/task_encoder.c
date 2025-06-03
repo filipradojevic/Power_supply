@@ -65,12 +65,6 @@
  * User variables
  ******************************************************************************/
 
-/* User ENUM's */
-typedef enum {
-    SEND_VOLTAGE = 0,
-    SEND_CURRENT_LIMIT
-} send_type_e;
-
 /* User variables */
 static send_type_e current_send_flag = SEND_VOLTAGE;
 volatile int encoder_voltage = 0;
@@ -78,13 +72,18 @@ volatile int encoder_current = 0;
 uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;
 uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;
 
+static int64_t last_step_time_encoder_pulse_us = 0;
+static int64_t last_step_time_encoder_switch_us = 0;
+static const int64_t STEP_DEBOUNCE_INTERVAL_US = 17500; // 50ms
+
 /* FreeRTOS objects */
 extern QueueHandle_t lvgl_voltage_queue;
 extern QueueHandle_t lvgl_current_queue;
+extern QueueHandle_t lvgl_bolding_update;
 extern SemaphoreHandle_t encoder_semaphore;
 extern SemaphoreHandle_t switch_semaphore;
 extern SemaphoreHandle_t command_semaphore;
-extern QueueSetHandle_t xQueueSet;
+extern QueueSetHandle_t xQueueSetEncoder;
 
 extern ui_objects_t objects;
 
@@ -98,13 +97,13 @@ void task_encoder(void *arg) {
     QueueSetMemberHandle_t activated_handle = NULL;
 
     while (1) {
-        activated_handle = xQueueSelectFromSet(xQueueSet, portMAX_DELAY);
+        activated_handle = xQueueSelectFromSet(xQueueSetEncoder, portMAX_DELAY);
 
         /* Send command triggered by encoder rotation */
         if (activated_handle == encoder_semaphore) {
             xSemaphoreTake(encoder_semaphore, 0);
 
-            /* Wait for debounce */
+            /* Software debounce */
             for (i = 0; i < 1000; i++);
 
             int a = gpio_get_level(ENCODER_CLK_PIN);
@@ -118,7 +117,16 @@ void task_encoder(void *arg) {
             }
 
             if (step != 0) {
-
+				
+				/* This checks if the pulse of encoder is triggered too fast bcs lvgl is not thread safe
+               It should not overload the LVGL update of the screen                        */
+				int64_t now_pulse = esp_timer_get_time();
+			    
+			    if ((now_pulse - last_step_time_encoder_pulse_us) < STEP_DEBOUNCE_INTERVAL_US) {
+			        continue;
+			    }
+			    last_step_time_encoder_pulse_us = now_pulse;
+			    
                 /* Check the type of command */
                 if (current_send_flag == SEND_VOLTAGE) {
 					encoder_voltage += step;
@@ -140,7 +148,18 @@ void task_encoder(void *arg) {
         /* Changes the flag for command by state of a switch */
         }else if (activated_handle == switch_semaphore) {
             xSemaphoreTake(switch_semaphore, 0);
-
+            
+            /* This checks if the button of encoder is triggered too fast bcs lvgl is not thread safe
+               It should not overload the LVGL update of the screen                        */
+            int64_t now_switch = esp_timer_get_time();
+			    
+			    if ((now_switch - last_step_time_encoder_switch_us) < STEP_DEBOUNCE_INTERVAL_US) {
+			        continue;
+			    }
+			    
+		    last_step_time_encoder_switch_us = now_switch;
+			
+			/* Software debounce */
             for (i = 0; i < 500; i++);
 
             /* Read button state again to verify rising edge of button signal */
@@ -149,6 +168,8 @@ void task_encoder(void *arg) {
             if (currentButtonState == 0) {
                 current_send_flag = (current_send_flag == SEND_VOLTAGE) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
             }
+            
+            xQueueSend(lvgl_bolding_update, &current_send_flag, 0);
             
         /* Triggered by Timer interrupt: send command to avoid reset of a device */
         }else if(activated_handle == command_semaphore){

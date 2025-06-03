@@ -32,6 +32,12 @@
 #define ENCODER_DT_PIN  GPIO_NUM_16 
 #define ENCODER_SW_PIN  GPIO_NUM_17
 
+/* User ENUM's */
+typedef enum {
+    SEND_VOLTAGE = 0,
+    SEND_CURRENT_LIMIT
+} send_type_e;
+
 
 /*******************************************************************************
  * Function Prototypes

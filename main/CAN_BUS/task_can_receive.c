@@ -60,9 +60,10 @@
  /*******************************************************************************
  * User variables
  ******************************************************************************/
+extern volatile bool can_alive_flag;
 
 /* FreeRTOS objects */
-extern QueueHandle_t queue_can;
+extern QueueHandle_t xQueueCan;
 
 /*******************************************************************************
  * Main function
@@ -81,8 +82,11 @@ void task_can_receive(void *arg)
             /* Check if RX triggered CAN */
             if (alerts & TWAI_ALERT_RX_DATA) {
                 if (twai_receive(&rx_msg, portMAX_DELAY) == ESP_OK) {
-                    /* Send data for further processing */
-                    xQueueSend(queue_can, &rx_msg, 0);
+                    
+                    /* Update flag for watchdog task */
+                    can_alive_flag = true;
+                    
+                    xQueueSend(xQueueCan, &rx_msg, 0);
                 }
             }
 

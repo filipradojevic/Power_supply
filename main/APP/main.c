@@ -1,8 +1,8 @@
 /**
  * @file    main.c
  * @brief   Main application file.
- *          Initializes all peripherals: CAN, LED, and encoder pins.
- *          Handles encoder interrupt processing and starts relevant tasks.
+ *          Initializes all peripherals: CAN, LED, Encoder, Ili9341 display and LVGL.
+ *          Handles encoder interrupt, processing and starts relevant tasks.
  * 
  * @version 1.0.0
  * @date    13.05.2025
@@ -56,6 +56,7 @@
  * Defines
  ******************************************************************************/
 
+/* FreeRTOS defines */
 #define CAN_QUEUE_MAX_SIZE     128
 #define QUEUE_SET_LENGTH       3
 #define QUEUE_SET_LVGL_LENGHT  3
@@ -65,6 +66,7 @@
 #define MEDIUM_HIGH_PRIO_TASK  4
 #define MAX_PRIO_TASK 	       5
 
+/* Timer defines */
 #define TIMER_BASE_CLK        80000000                         /* 80MHz clock */
 #define TIMER_DIVIDER         8000               /* 80 MHz / 8000 = 10,000 Hz */
 #define TIMER_SCALE (TIMER_BASE_CLK/TIMER_DIVIDER) /* 10,000 ticks per second */
@@ -75,32 +77,32 @@
  ******************************************************************************/
 
 /* User variables */
-volatile int64_t last_event_time = 0;
-extern volatile int encoderPos;
-const int64_t debounce_us = 1000;
 esp_err_t esp_err;
-
 
 /* LVGL variables */
 lv_disp_t *global_disp; /* Global Current Active Display */
 lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
 lv_disp_drv_t disp_drv;      // contains callback functions
-esp_lcd_panel_handle_t panel_handle = NULL; /* Display that indicate LVGL which one we use */
 lv_disp_t *disp = NULL;
-
 ui_objects_t objects;
 
+/* Display that indicate LVGL which one we use */
+esp_lcd_panel_handle_t panel_handle = NULL;
+
 /* FreeRTOS objects */
-QueueHandle_t queue_can = NULL;
-QueueSetHandle_t xQueueSet = NULL;
+QueueHandle_t xQueueCan = NULL;
+QueueSetHandle_t xQueueSetEncoder = NULL;
 QueueSetHandle_t xQueueSetLvgl = NULL;
-SemaphoreHandle_t encoder_semaphore = NULL;
-SemaphoreHandle_t switch_semaphore = NULL;
-SemaphoreHandle_t command_semaphore = NULL;
 QueueHandle_t lvgl_voltage_queue = NULL;
 QueueHandle_t lvgl_current_queue = NULL;
 QueueHandle_t lvgl_update_queue = NULL;
+QueueHandle_t lvgl_bolding_update = NULL;
 SemaphoreHandle_t lvgl_mux = NULL;
+SemaphoreHandle_t encoder_semaphore = NULL;
+SemaphoreHandle_t switch_semaphore = NULL;
+SemaphoreHandle_t command_semaphore = NULL;
+SemaphoreHandle_t watchdog_semaphore = NULL;
+
 /*******************************************************************************
  * Prototyp of functions
  ******************************************************************************/
@@ -128,6 +130,7 @@ void task_pwr_supply(void *arg);
 void task_can_receive(void *arg);
 void task_encoder(void *arg);
 void task_lvgl_ili9341(void *arg);
+void task_can_watchdog(void *arg);
 
 /* Isr prototypes */
 void timer_isr(void *arg);
@@ -164,23 +167,27 @@ void app_main() {
     
     /* Creating RTOS TASKS */
 	if (xTaskCreate(task_lvgl_ili9341, "LVGL", EXAMPLE_LVGL_TASK_STACK_SIZE, NULL,
-	 MAX_PRIO_TASK, NULL) != pdPASS){
+	 MEDIUM_HIGH_PRIO_TASK, NULL) != pdPASS){
 		 Error_Handler();
 	}
 	
-    
-    if (xTaskCreate(task_encoder, "Encode_and_send_cmd", 2048, NULL,
-     MEDIUM_HIGH_PRIO_TASK, NULL) != pdPASS) {
+    if (xTaskCreate(task_encoder, "Encoder sending Commands", 2048, NULL,
+     MEDIUM_PRIO_TASK, NULL) != pdPASS) {
         Error_Handler();
     }
     
-    if (xTaskCreate(task_can_receive, "can_rx_task", 2048, NULL,
+    if (xTaskCreate(task_can_receive, "Can Receive Task", 2048, NULL,
      MIN_PRIO_TASK, NULL) != pdPASS) {
         Error_Handler();
     }
 
-    if (xTaskCreate(task_pwr_supply, "can_processing", 2048, NULL,
+    if (xTaskCreate(task_pwr_supply, "CAN Processing", 2048, NULL,
      MEDIUM_LOW_PRIO_TASK, NULL) != pdPASS) {
+        Error_Handler();
+    }
+    
+    if (xTaskCreate(task_can_watchdog, "Watchdog Can Task", 2048, NULL,
+     MAX_PRIO_TASK, NULL) != pdPASS) {
         Error_Handler();
     }
     
@@ -222,8 +229,8 @@ static esp_err_t hardware_init(void) {
 /* Initialize FreeRTOS objects: CAN queue, semaphores, queue set */
 static esp_err_t rtos_objects_init(void) {
     /* CAN Queue */
-    queue_can = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(twai_message_t));
-    if (queue_can == NULL) {
+    xQueueCan = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(twai_message_t));
+    if (xQueueCan == NULL) {
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
         return ESP_FAIL;
     }
@@ -266,6 +273,18 @@ static esp_err_t rtos_objects_init(void) {
         return ESP_FAIL;
     }
     
+    lvgl_bolding_update = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(send_type_e));
+    if (lvgl_bolding_update == NULL){
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
+    
+    watchdog_semaphore = xSemaphoreCreateBinary();
+    if (watchdog_semaphore == NULL) {
+        gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
+        return ESP_FAIL;
+    }
+    
 	/* Creating Recursive Mutex bcs LVGL library is not THREAD-SAFE! */
     lvgl_mux = xSemaphoreCreateRecursiveMutex();
     if (lvgl_mux == NULL){
@@ -274,21 +293,21 @@ static esp_err_t rtos_objects_init(void) {
 	}
     
     /* CAN Queue Set */
-    xQueueSet = xQueueCreateSet(QUEUE_SET_LENGTH);
+    xQueueSetEncoder = xQueueCreateSet(QUEUE_SET_LENGTH);
     
-    if (xQueueSet == NULL) {
+    if (xQueueSetEncoder == NULL) {
         return ESP_FAIL;
     }
     
-    if (xQueueAddToSet(encoder_semaphore, xQueueSet) != pdPASS) {
+    if (xQueueAddToSet(encoder_semaphore, xQueueSetEncoder) != pdPASS) {
         return ESP_FAIL;
     }
     
-    if (xQueueAddToSet(switch_semaphore, xQueueSet) != pdPASS) {
+    if (xQueueAddToSet(switch_semaphore, xQueueSetEncoder) != pdPASS) {
         return ESP_FAIL;
     }
     
-    if (xQueueAddToSet(command_semaphore, xQueueSet) != pdPASS) {
+    if (xQueueAddToSet(command_semaphore, xQueueSetEncoder) != pdPASS) {
         return ESP_FAIL;
     }
     
@@ -310,7 +329,16 @@ static esp_err_t rtos_objects_init(void) {
     if (xQueueAddToSet(lvgl_update_queue, xQueueSetLvgl) != pdPASS) {
         return ESP_FAIL;
     }
-
+    
+    if (xQueueAddToSet(watchdog_semaphore, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+    
+    if (xQueueAddToSet(lvgl_bolding_update, xQueueSetLvgl) != pdPASS) {
+        return ESP_FAIL;
+    }
+    
+    
     return ESP_OK;
 }
 
@@ -449,6 +477,7 @@ static esp_err_t encoder_initialization(void) {
     return ESP_OK;
 }
 
+/* Initialize hardware: Ili9341 display */
 static esp_err_t ili9341_disp_initialization(void){
 	/* Initialize background light pin with driver/gpio.h */
     gpio_config_t bk_gpio_config = {
@@ -524,7 +553,7 @@ static esp_err_t ili9341_disp_initialization(void){
 	return ESP_OK;
 }
 
-
+/* Initialize hardware: LVGL */
 static esp_err_t lvgl_initialization(void){
 	
 	/* Initialize the LVGL library */

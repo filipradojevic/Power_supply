@@ -71,7 +71,7 @@ esp_err_t esp_err_pwr;
 extern QueueHandle_t lvgl_voltage_queue;
 extern QueueHandle_t lvgl_current_queue;
 extern QueueHandle_t lvgl_update_queue;
-extern QueueHandle_t queue_can;
+extern QueueHandle_t xQueueCan;
 
 /*******************************************************************************
  * Main function
@@ -90,7 +90,7 @@ void task_pwr_supply(void *arg)
     for (;;) {
         /* Send request message  */
         twai_transmit(&request_msg, pdMS_TO_TICKS(1000));
-	        if (xQueueReceive(queue_can, &rx_msg, timeout) == pdPASS) {
+	        if (xQueueReceive(xQueueCan, &rx_msg, timeout) == pdPASS) {
 	            if (rx_msg.identifier == CAN_REQUEST_VALUES_ID || 
 	                rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID) {
 	
@@ -115,11 +115,8 @@ void task_pwr_supply(void *arg)
 						}
 	                }
 	            }
-	      } else {
-					//TODO we should think what the error will do
-					Error_Handler();
-			}
-    	}
+	      } 
+    }
 }
 
 

@@ -60,6 +60,7 @@
 /* User variables */
 extern esp_err_t esp_err;
 bool flag = true;
+static bool led_on = false;  // globalno ili static u funkciji
 
 /* LVGL variables */
 extern lv_disp_t *global_disp; /* Global Current Active Display */
@@ -73,9 +74,11 @@ extern ui_objects_t objects;
 extern QueueHandle_t lvgl_voltage_queue;
 extern QueueHandle_t lvgl_current_queue;
 extern QueueHandle_t lvgl_update_queue;
+extern QueueHandle_t lvgl_bolding_update;
 extern QueueSetHandle_t xQueueSetLvgl;
 
 extern SemaphoreHandle_t lvgl_mux;
+extern SemaphoreHandle_t watchdog_semaphore;
 
 /*******************************************************************************
  * Main function
@@ -85,6 +88,7 @@ void task_lvgl_ili9341(void *arg)
 {
     QueueSetMemberHandle_t activated_queue = NULL;
     lvgl_data_t lvgl_received;
+    send_type_e voltage_current_flag;
     uint32_t received_value;
     char value_str[16];
 
@@ -129,7 +133,8 @@ void task_lvgl_ili9341(void *arg)
 			        
 			        lvgl_unlock();
 			    }
-			}
+			} 
+			
 			
         } else if (activated_queue == lvgl_update_queue) {
 			  
@@ -138,6 +143,39 @@ void task_lvgl_ili9341(void *arg)
 			  	update_lvgl_display(&lvgl_received, &flag);
     		}
     		
+		} else if (activated_queue == lvgl_bolding_update) {
+			  if (xQueueReceive(lvgl_bolding_update, &voltage_current_flag, 0) == pdTRUE) {
+			     if (lvgl_lock(-1)) {
+					 
+			        update_voltage_current_labels(voltage_current_flag);
+			        
+			        lv_timer_handler();
+			        
+			        lvgl_unlock();
+			    } 
+			 }
+			
+		} else if (activated_queue == watchdog_semaphore) {
+			
+			xSemaphoreTake(watchdog_semaphore, 0);
+	        
+	        if (lvgl_lock(-1)) {
+	            lv_led_set_color(objects.led, lv_color_hex(0xFFFF00));
+
+			    // Trepkanje promenom osvetljenja
+			    if (led_on) {
+			        lv_led_set_brightness(objects.led, 255);  // Svetli
+			    } else {
+			        lv_led_set_brightness(objects.led, 50);   // Tamanije, ali se i dalje vidi
+			    }       
+				
+				led_on = !led_on;
+				
+	            lv_timer_handler();
+	            
+	            lvgl_unlock();
+      	   }	
+				
 		} else {
 			Error_Handler();
 		}
@@ -194,6 +232,8 @@ void update_lvgl_display(const lvgl_data_t *data, bool *flag) {
             lv_led_set_brightness(objects.led, 0);
         }
         
+        lv_led_set_color(objects.led, lv_color_hex(0xff00ff26));
+        
         led_state = !led_state;
 
 		/* Update the screen */
@@ -201,6 +241,35 @@ void update_lvgl_display(const lvgl_data_t *data, bool *flag) {
         
         /* Freed up mutex */
         lvgl_unlock();
+    }
+}
+
+void update_voltage_current_labels(send_type_e flag) {
+    if (flag == SEND_VOLTAGE) {
+        // Voltage label: selektovan (tamna siva)
+        lv_obj_set_style_text_color(objects.voltage_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(objects.voltage_label, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(objects.voltage_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_pad_all(objects.voltage_label, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // Current Limit label: deselektovan (svetla siva)
+        lv_obj_set_style_text_color(objects.curr_limit_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(objects.curr_limit_label, lv_color_hex(0x888888), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(objects.curr_limit_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_pad_all(objects.curr_limit_label, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    } else if (flag == SEND_CURRENT_LIMIT) {
+        // Voltage label: deselektovan (svetla siva)
+        lv_obj_set_style_text_color(objects.voltage_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(objects.voltage_label, lv_color_hex(0x888888), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(objects.voltage_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_pad_all(objects.voltage_label, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        // Current Limit label: selektovan (tamna siva)
+        lv_obj_set_style_text_color(objects.curr_limit_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(objects.curr_limit_label, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_opa(objects.curr_limit_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_pad_all(objects.curr_limit_label, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 }
 
