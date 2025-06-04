@@ -59,35 +59,52 @@
 /*******************************************************************************
  * Defines
  ******************************************************************************/
-
+#define DEBOUNCE_DELAY_US 250
  
- /*******************************************************************************
- * User variables
+/*******************************************************************************
+ * User Variables
  ******************************************************************************/
 
-/* User variables */
-static send_type_e current_send_flag = SEND_VOLTAGE;
-button_pressed_e button_flag = BUTTON_NOT_PRESSED;
-volatile int encoder_voltage = 0;
-volatile int encoder_current = 0;
-uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;
-uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;
+/* Encoder and button state */
+static send_type_e current_send_flag = SEND_VOLTAGE;   /* Current parameter being adjusted (voltage or current) */
+static button_pressed_e button_flag = BUTTON_NOT_PRESSED;     /* State of the encoder button */
+volatile int encoder_voltage = 0;                       /* Encoder step count for voltage */
+volatile int encoder_current = 0;                       /* Encoder step count for current */
 
-static int64_t last_step_time_encoder_pulse_us = 0;
-static int64_t last_step_time_encoder_switch_us = 0;
-static const int64_t STEP_DEBOUNCE_INTERVAL_US = 17500; // 50ms
+/* Current CAN parameter values */
+uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;   /* Current voltage value */
+uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;   /* Current current limit */
 
-/* FreeRTOS objects */
-extern QueueHandle_t lvgl_voltage_queue;
-extern QueueHandle_t lvgl_current_queue;
-extern QueueHandle_t lvgl_bolding_update;
-extern QueueHandle_t lvgl_button_pressed;
-extern SemaphoreHandle_t encoder_semaphore;
-extern SemaphoreHandle_t switch_semaphore;
-extern SemaphoreHandle_t command_semaphore;
-extern QueueSetHandle_t xQueueSetEncoder;
+/* Debounce timing for encoder signals */
+static int64_t last_step_time_encoder_pulse_us = 0;     /* Timestamp of last encoder pulse */
+static const int64_t STEP_DEBOUNCE_INTERVAL_US = 17500; /* Debounce interval in microseconds (~17.5ms) */
+static int lastButtonReading = 1;             // poslednje očitano stanje dugmeta
+static int64_t lastDebounceTime = 0;          // vreme poslednje promene
 
-extern ui_objects_t objects;
+/*******************************************************************************
+ * UI Object References
+ ******************************************************************************/
+
+extern ui_objects_t objects;                            /* Structure containing all UI objects */
+
+
+/*******************************************************************************
+ * FreeRTOS Objects
+ ******************************************************************************/
+
+/* Queues */
+extern QueueHandle_t lvgl_voltage_queue;                /* Queue for voltage changes */
+extern QueueHandle_t lvgl_current_queue;                /* Queue for current limit changes */
+extern QueueHandle_t lvgl_bolding_update;               /* Queue for UI bolding updates */
+extern QueueHandle_t lvgl_button_pressed;               /* Queue for button press events */
+
+/* Queue set */
+extern QueueSetHandle_t xQueueSetEncoder;               /* Queue set for encoder-related events */
+
+/* Semaphores */
+extern SemaphoreHandle_t encoder_semaphore;             /* Semaphore for encoder pulses */
+extern SemaphoreHandle_t switch_semaphore;              /* Semaphore for encoder button presses */
+extern SemaphoreHandle_t command_semaphore;             /* Semaphore for command execution */
 
 /*******************************************************************************
  * Main function
@@ -101,107 +118,98 @@ void task_encoder(void *arg) {
     while (1) {
         activated_handle = xQueueSelectFromSet(xQueueSetEncoder, portMAX_DELAY);
 
-        /* Send command triggered by encoder rotation */
+        /* Encoder rotation event */
         if (activated_handle == encoder_semaphore) {
             xSemaphoreTake(encoder_semaphore, 0);
 
-            /* Software debounce */
             for (i = 0; i < 2500; i++);
 
-            int a = gpio_get_level(ENCODER_CLK_PIN);
-            int b = gpio_get_level(ENCODER_DT_PIN);
-
+            int clk_level = gpio_get_level(ENCODER_CLK_PIN);
+            int dt_level = gpio_get_level(ENCODER_DT_PIN);
             int step = 0;
 
-            /* Check if still active */
-            if (a == 1) {
-                step = (b != a) ? +1 : -1;
-            }
+            if (clk_level == 1) step = (dt_level  != clk_level) ? +1 : -1;
 
             if (step != 0) {
 				
-				/* This checks if the pulse of encoder is triggered too fast bcs lvgl is not thread safe
-               It should not overload the LVGL update of the screen                        */
-				int64_t now_pulse = esp_timer_get_time();
-			    
-			    if ((now_pulse - last_step_time_encoder_pulse_us) < STEP_DEBOUNCE_INTERVAL_US) {
-			        continue;
-			    }
-			    
-			    last_step_time_encoder_pulse_us = now_pulse;
-			    
-			    /* When the button is not pressed, we select on display what we want to change */
-			    /* It's acting like menu to choose whitch one we want to change it */
-			    if (button_flag == BUTTON_NOT_PRESSED){
-					
-					/* And here we are setting the flag and send to the lvgl_ili9341 task */
-					current_send_flag = (step > 0) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
-			    
-			   		xQueueSend(lvgl_bolding_update, &current_send_flag, 0);	
-				}
-			    
-			    
-			    if (button_flag == BUTTON_PRESSED){
-					/* Check the type of command */
-		            if (current_send_flag == SEND_VOLTAGE) {
-						encoder_voltage += step;
-		                uint32_t new_voltage_value = pack_current_voltage();
-		
-						twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
-						
-						xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
-		            } else {
-						encoder_current += step;
-		                uint32_t new_current_limit = pack_current_limit();
-		                
-		                twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
-		                
-		                xQueueSend(lvgl_current_queue, &new_current_limit, 0);
-		            }	
-				}
-				
-                
-            }
-        
-        /* Changes the flag for command by state of a switch */
-        }else if (activated_handle == switch_semaphore) {
-            xSemaphoreTake(switch_semaphore, 0);
-            
-            /* This checks if the button of encoder is triggered too fast bcs lvgl is not thread safe
-               It should not overload the LVGL update of the screen                        */
-            int64_t now_switch = esp_timer_get_time();
-			    
-			    if ((now_switch - last_step_time_encoder_switch_us) < STEP_DEBOUNCE_INTERVAL_US) {
-			        continue;
-			    }
-			    
-		    last_step_time_encoder_switch_us = now_switch;
-			
-			/* Software debounce */
-            for (i = 0; i < 2500; i++);
-			
-            /* Read button state again to verify rising edge of button signal */
-            currentButtonState = gpio_get_level(ENCODER_SW_PIN);
+				/* Software Debounce */
+                int64_t now_pulse = esp_timer_get_time();
 
-            if (currentButtonState == 0) {
-                button_flag = (button_flag == BUTTON_PRESSED) ? BUTTON_NOT_PRESSED : BUTTON_PRESSED;
+                if ((now_pulse - last_step_time_encoder_pulse_us) < STEP_DEBOUNCE_INTERVAL_US)
+                    continue;
+
+                last_step_time_encoder_pulse_us = now_pulse;
+
+                if (button_flag == BUTTON_NOT_PRESSED) {
+                    
+                    /* Select parameter to adjust */
+                    current_send_flag = (step > 0) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
+                    
+                    xQueueSend(lvgl_bolding_update, &current_send_flag, 0);
+                
+                } else {
+                    
+                    /* Update selected parameter */
+                    if (current_send_flag == SEND_VOLTAGE) {
+                        encoder_voltage += step;
+                    
+                        uint32_t new_voltage_value = pack_current_voltage();
+                    
+                        twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+                    
+                        xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
+                    
+                    } else {
+                        encoder_current += step;
+                    
+                        uint32_t new_current_limit = pack_current_limit();
+                    
+                        twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
+                    
+                        xQueueSend(lvgl_current_queue, &new_current_limit, 0);
+                    }
+                }
             }
-            
-            xQueueSend(lvgl_button_pressed, &button_flag, 0);
-            
-        /* Triggered by Timer interrupt: send command to avoid reset of a device */
-        }else if(activated_handle == command_semaphore){
+
+        /* Encoder button press event */
+        } else if (activated_handle == switch_semaphore) {
+			xSemaphoreTake(switch_semaphore, 0);
+			
+			/* Software Debounce */
+		    int reading = gpio_get_level(ENCODER_SW_PIN);
+		    
+		    int64_t now = esp_timer_get_time();
+		
+		    if (reading != lastButtonReading) {
+		        lastDebounceTime = now;
+		        lastButtonReading = reading;
+		    }
+		
+		    if ((now - lastDebounceTime) > DEBOUNCE_DELAY_US) {
+		        
+		        int reading = gpio_get_level(ENCODER_SW_PIN);
+		          
+	            if (reading == 0) {
+	                /* Toggle button_flag */
+	                button_flag = (button_flag == BUTTON_PRESSED) ? BUTTON_NOT_PRESSED : BUTTON_PRESSED;
+	                
+	                xQueueSend(lvgl_button_pressed, &button_flag, 0);
+	                
+	                lastButtonReading = 1;
+	            }
+		    }
+		    
+		    
+        /* Periodic command event to prevent device reset */
+        } else if (activated_handle == command_semaphore) {
             xSemaphoreTake(command_semaphore, 0);
 
             uint32_t new_voltage_value = pack_current_voltage();
-
-            twai_send_voltage(new_voltage_value,CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
-
-        }else {
-            Error_Handler();
+            twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
         }
     }
 }
+
 
 /* Sending command for a voltage ON/OFF Line */
 void twai_send_voltage(uint32_t new_voltage_value, uint32_t command){

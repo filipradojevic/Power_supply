@@ -48,6 +48,8 @@ typedef struct {
     lv_obj_t *slider_limit_curr;
     lv_obj_t *led;
     lv_obj_t *effieciency;
+    lv_obj_t *arc3;  // kazaljka za prvi luk
+    lv_obj_t *arc4;  // kazaljka za drugi luk
 } ui_objects_t;
 
 /******************************************************************************* 

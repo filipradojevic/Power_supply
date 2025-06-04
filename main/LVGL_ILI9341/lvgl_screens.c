@@ -1,14 +1,17 @@
-/*
- * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: CC0-1.0
+/**
+ * @file    lvgl_screens.c
+ * @brief   
+ * 
+ * @version 1.0.0
+ * @date    30.05.2025
+ * @author  LisumLab
  */
 
-// This demo UI is adapted from LVGL official example: https://docs.lvgl.io/master/widgets/extra/meter.html#simple-meter
 
 /* Includes of FreeRTOS */
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 #include <freertos/FreeRTOS.h>
 #include "esp_err.h"
 #include "freertos/projdefs.h"
@@ -55,7 +58,6 @@ void switch_to_main_ui(lv_timer_t *timer);
 extern void voltage_update_cb(lv_timer_t *timer);
 
 
-
 void switch_to_main_ui(lv_timer_t *timer)
 {
     LV_UNUSED(timer);  // ako ne koristiš timer argument
@@ -86,30 +88,34 @@ void create_main_ui(lv_disp_t *disp)
         {
             lv_obj_t *obj = lv_arc_create(parent_obj);
             objects.obj0 = obj;
-            lv_obj_set_pos(obj, 29, 69);
+            lv_obj_set_pos(obj, 29, 68);
             lv_obj_set_size(obj, 103, 99);
             lv_arc_set_range(obj, 408, 582);
             lv_arc_set_value(obj, 495);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFBDBDBD), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_CHECKED);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_color(obj, lv_color_hex(0xff2196f3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFFF00), LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_CHECKED);
-            lv_obj_set_style_arc_width(obj, 2121, LV_PART_KNOB | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_color(obj, lv_color_hex(0xff000000), LV_PART_KNOB | LV_STATE_DEFAULT);
-        }
+            
+			// Potpuno sakrij knob
+			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
         {
             lv_obj_t *obj = lv_arc_create(parent_obj);
             objects.obj1 = obj;
             lv_obj_set_pos(obj, 178, 68);
             lv_obj_set_size(obj, 103, 99);
-            lv_arc_set_range(obj, 0, 600);
-            lv_arc_set_value(obj, 25);
+            lv_arc_set_range(obj, 0, 500);
+            lv_arc_set_value(obj, 20);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_color(obj, lv_color_hex(0xffff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFBDBDBD), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_color(obj, lv_color_hex(0xff2196f3), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFFF00), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+            
+            
+			// Potpuno sakrij knob
+			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
         }
         {
             // Voltage_Label
@@ -135,12 +141,13 @@ void create_main_ui(lv_disp_t *disp)
             // Vol_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.vol_change = obj;
-            lv_obj_set_pos(obj, 68, 110);
+            lv_obj_set_pos(obj, 56, 107);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "49.5");
         }
+        
         {
             // Power_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
@@ -190,9 +197,9 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_change = obj;
-            lv_obj_set_pos(obj, 221, 111);
+            lv_obj_set_pos(obj, 216, 107);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "1.6");
@@ -221,8 +228,8 @@ void create_main_ui(lv_disp_t *disp)
             objects.slider_power = obj;
             lv_obj_set_pos(obj, -1, 34);
             lv_obj_set_size(obj, 108, 1);
-            lv_slider_set_range(obj, 0, 3540);
-            lv_slider_set_value(obj, 600, LV_ANIM_OFF);
+            lv_slider_set_range(obj, 0, 2900);
+            lv_slider_set_value(obj, 200, LV_ANIM_OFF);
         }
         {
             // Slider_temp
@@ -251,5 +258,43 @@ void create_main_ui(lv_disp_t *disp)
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "96");
         }
+        {
+		    lv_obj_t *obj = lv_arc_create(parent_obj);
+		    objects.arc3 = obj;
+		    lv_obj_set_pos(obj, 22, 61);
+		    lv_obj_set_size(obj, 113, 125);
+		    lv_arc_set_range(obj, 408, 582);
+		    lv_arc_set_value(obj, 495);
+		
+		    // Diskretna glavna linija
+			lv_obj_set_style_arc_color(obj, lv_color_hex(0xFF616161), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_arc_width(obj, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
+			
+			// Indikator
+			lv_obj_set_style_arc_color(obj, lv_color_hex(0xaa00aa), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+			lv_obj_set_style_arc_width(obj, 4, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+			
+			// Potpuno sakrij knob
+			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
+		}
+		{
+		    lv_obj_t *obj = lv_arc_create(parent_obj);
+			objects.arc4 = obj;
+			lv_obj_set_pos(obj, 171, 61);
+			lv_obj_set_size(obj, 113, 125);
+			lv_arc_set_range(obj, 0, 500);
+			lv_arc_set_value(obj, 20);
+			
+			// Diskretna glavna linija
+			lv_obj_set_style_arc_color(obj, lv_color_hex(0xFF616161), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_arc_width(obj, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
+			
+			// Indikator
+			lv_obj_set_style_arc_color(obj, lv_color_hex(0xaa00aa), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+			lv_obj_set_style_arc_width(obj, 4, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+			
+			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
+		}
     }
+}
 }
