@@ -112,7 +112,6 @@ extern SemaphoreHandle_t command_semaphore;             /* Semaphore for command
 
 void task_encoder(void *arg) {
     uint16_t i;
-    uint8_t currentButtonState = 1;
     QueueSetMemberHandle_t activated_handle = NULL;
 
     while (1) {

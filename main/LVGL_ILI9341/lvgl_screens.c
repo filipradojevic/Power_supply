@@ -85,6 +85,7 @@ void create_main_ui(lv_disp_t *disp)
     lv_obj_set_style_bg_color(obj, lv_color_hex(0xff000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     {
         lv_obj_t *parent_obj = obj;
+        //Voltage ARC
         {
             lv_obj_t *obj = lv_arc_create(parent_obj);
             objects.obj0 = obj;
@@ -92,15 +93,21 @@ void create_main_ui(lv_disp_t *disp)
             lv_obj_set_size(obj, 103, 99);
             lv_arc_set_range(obj, 408, 582);
             lv_arc_set_value(obj, 495);
+            
+            //Default 
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFBDBDBD), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_CHECKED);
+            
+            //Indicator 
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFFF00), LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_CHECKED);
             
-			// Potpuno sakrij knob
+			//Knob
 			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
+			
+		//Current ARC
         {
             lv_obj_t *obj = lv_arc_create(parent_obj);
             objects.obj1 = obj;
@@ -108,13 +115,17 @@ void create_main_ui(lv_disp_t *disp)
             lv_obj_set_size(obj, 103, 99);
             lv_arc_set_range(obj, 0, 500);
             lv_arc_set_value(obj, 20);
+            
+            //Default 
             lv_obj_set_style_arc_width(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFBDBDBD), LV_PART_MAIN | LV_STATE_DEFAULT);
+            
+            //Indicator 
             lv_obj_set_style_arc_width(obj, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xFFFF00), LV_PART_INDICATOR | LV_STATE_DEFAULT);
             
             
-			// Potpuno sakrij knob
+			//Knob
 			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
         }
         {
@@ -195,7 +206,7 @@ void create_main_ui(lv_disp_t *disp)
             lv_label_set_text(obj, "2");
         }
         {
-            // Curr_Change
+            // Curr_Limit_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_change = obj;
             lv_obj_set_pos(obj, 210, 102);
@@ -206,7 +217,7 @@ void create_main_ui(lv_disp_t *disp)
             lv_label_set_text(obj, "1.6");
         }
         {
-            // Voltage_Label_1
+            // Current_label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.voltage_label_1 = obj;
             lv_obj_set_pos(obj, 180, 160);
@@ -216,7 +227,7 @@ void create_main_ui(lv_disp_t *disp)
             lv_label_set_text(obj, "Current [A]");
         }
         {
-            // Curr_Limit_Label_1
+            // Efficiency_label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_limit_label_1 = obj;
             lv_obj_set_pos(obj, -2, 195);
@@ -261,6 +272,7 @@ void create_main_ui(lv_disp_t *disp)
             lv_label_set_text(obj, "96");
         }
         {
+			// Voltage_set_point_arc
 		    lv_obj_t *obj = lv_arc_create(parent_obj);
 		    objects.arc3 = obj;
 		    lv_obj_set_pos(obj, 22, 61);
@@ -268,18 +280,19 @@ void create_main_ui(lv_disp_t *disp)
 		    lv_arc_set_range(obj, 408, 582);
 		    lv_arc_set_value(obj, 495);
 		
-		    // Diskretna glavna linija
+		    // Default
 			lv_obj_set_style_arc_color(obj, lv_color_hex(0xFF616161), LV_PART_MAIN | LV_STATE_DEFAULT);
 			lv_obj_set_style_arc_width(obj, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
 			
-			// Indikator
+			// Indicator
 			lv_obj_set_style_arc_color(obj, lv_color_hex(0xaa00aa), LV_PART_INDICATOR | LV_STATE_DEFAULT);
 			lv_obj_set_style_arc_width(obj, 4, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 			
-			// Potpuno sakrij knob
+			// Knob
 			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
 		}
 		{
+			// Current_set_point_arc
 		    lv_obj_t *obj = lv_arc_create(parent_obj);
 			objects.arc4 = obj;
 			lv_obj_set_pos(obj, 171, 61);
@@ -287,14 +300,15 @@ void create_main_ui(lv_disp_t *disp)
 			lv_arc_set_range(obj, 0, 500);
 			lv_arc_set_value(obj, 20);
 			
-			// Diskretna glavna linija
+			// Default
 			lv_obj_set_style_arc_color(obj, lv_color_hex(0xFF616161), LV_PART_MAIN | LV_STATE_DEFAULT);
 			lv_obj_set_style_arc_width(obj, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
 			
-			// Indikator
+			// Indicator
 			lv_obj_set_style_arc_color(obj, lv_color_hex(0xaa00aa), LV_PART_INDICATOR | LV_STATE_DEFAULT);
 			lv_obj_set_style_arc_width(obj, 4, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 			
+			// Knob
 			lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
 		}
     }

@@ -59,11 +59,15 @@
 
 /* User variables */
 extern esp_err_t esp_err;
+
 static bool led_on = false;
 extern button_pressed_e button_flag;
+static send_type_e last_flag_value = SEND_VOLTAGE;
+
 static uint32_t last_encoder_activity_time = 0;
 static const uint32_t encoder_timeout_ms = 1000;
-static send_type_e last_flag_value = SEND_VOLTAGE;
+
+static char value_str[16];
 
 /* LVGL variables */
 extern lv_disp_t *global_disp; /* Global Current Active Display */
@@ -95,9 +99,7 @@ void task_lvgl_ili9341(void *arg)
     send_type_e voltage_current_flag = SEND_VOLTAGE;
     button_pressed_e button_pressed_flag = BUTTON_NOT_PRESSED;
     uint32_t received_value;
-    char value_str[16];
     
-
     while (1) {
         activated_queue = xQueueSelectFromSet(xQueueSetLvgl, portMAX_DELAY);
 
@@ -110,13 +112,7 @@ void task_lvgl_ili9341(void *arg)
 				/* Take the mutex */
 			    if (lvgl_lock(-1)) {
 					
-			        snprintf(value_str, sizeof(value_str), "%.1f", voltage);  // npr. "48.2 V"
-			        
-			        lv_label_set_text(objects.vol_change, value_str);
-        			
-        			int16_t arc_val = (int16_t)(voltage * 10.0f);  // Sačuvaj tačnost pre kastovanja
-        			
-        			lv_arc_set_value(objects.arc3, arc_val);
+			        change_voltage_value(voltage);
         			
         			lv_timer_handler();
 			        
@@ -133,13 +129,7 @@ void task_lvgl_ili9341(void *arg)
 				/* Take the mutex */
 			    if (lvgl_lock(-1)) {
 			        
-			        snprintf(value_str, sizeof(value_str), "%.1f", cur_limit);
-			        
-			        lv_label_set_text(objects.curr_limit_change, value_str);
-			        
-			        int16_t arc_val = (int16_t)(cur_limit * 10.0f);  // Sačuvaj tačnost pre kastovanja
-        			
-        			lv_arc_set_value(objects.arc4, arc_val);
+			        change_current_limit_value(cur_limit);
         			
 			        lv_timer_handler();
 			        
@@ -332,6 +322,28 @@ void update_lvgl_display(const lvgl_data_t *data, button_pressed_e button_flag,
     }
 }
 
+void change_voltage_value(float voltage){
+	
+	snprintf(value_str, sizeof(value_str), "%.1f", voltage);  // npr. "48.2 V"
+			        
+    lv_label_set_text(objects.vol_change, value_str);
+	
+	int16_t arc_val = (int16_t)(voltage * 10.0f);  // Sačuvaj tačnost pre kastovanja
+	
+	lv_arc_set_value(objects.arc3, arc_val);
+}
+
+void change_current_limit_value(float cur_limit){
+	
+	snprintf(value_str, sizeof(value_str), "%.1f", cur_limit);
+			        
+    lv_label_set_text(objects.curr_limit_change, value_str);
+    
+    int16_t arc_val = (int16_t)(cur_limit * 10.0f);  // Sačuvaj tačnost pre kastovanja
+	
+	lv_arc_set_value(objects.arc4, arc_val);
+}
+
 lv_color_t get_scaled_color(int value, int min, int max) {
     if (value < min) value = min;
     if (value > max) value = max;
@@ -354,7 +366,8 @@ void update_voltage_current_change(button_pressed_e flag_change, send_type_e fla
 	        
 	        /* Selected voltage - green */
 	        lv_obj_set_style_text_color(objects.vol_change, lv_color_hex(0x00FF00), LV_PART_MAIN | LV_STATE_DEFAULT);
-	        // Voltage label: selektovan (tamna siva)
+	        
+			/* Selected gray */
 	        lv_obj_set_style_text_color(objects.voltage_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
 	        lv_obj_set_style_bg_color(objects.voltage_label, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
 	        lv_obj_set_style_bg_opa(objects.voltage_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -364,7 +377,8 @@ void update_voltage_current_change(button_pressed_e flag_change, send_type_e fla
 			
 			/* Selected voltage - green */
 	        lv_obj_set_style_text_color(objects.curr_limit_change, lv_color_hex(0x00FF00), LV_PART_MAIN | LV_STATE_DEFAULT);
-	        // Current Limit label: selektovan (tamna siva)
+	        
+	        /* Selected gray */
 	        lv_obj_set_style_text_color(objects.voltage_label_1, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
 	        lv_obj_set_style_bg_color(objects.voltage_label_1, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
 	        lv_obj_set_style_bg_opa(objects.voltage_label_1, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -382,7 +396,7 @@ void update_voltage_current_change(button_pressed_e flag_change, send_type_e fla
 
 void update_voltage_current_labels(send_type_e flag) {
     if (flag == SEND_VOLTAGE) {
-        // Voltage label: selektovan (tamna siva)
+        /* Voltage label: selected gray */
         lv_obj_set_style_text_color(objects.voltage_label, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(objects.voltage_label, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(objects.voltage_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -394,13 +408,13 @@ void update_voltage_current_labels(send_type_e flag) {
         lv_obj_set_style_bg_opa(objects.voltage_label_1, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_pad_all(objects.voltage_label_1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     } else if (flag == SEND_CURRENT_LIMIT) {
-        // Voltage label: deselektovan (svetla siva)
+        /* Voltage label: deselected gray */
 		lv_obj_set_style_text_color(objects.voltage_label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(objects.voltage_label, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(objects.voltage_label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_pad_all(objects.voltage_label, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 	
-        // Current Limit label: selektovan (tamna siva)
+        /* Current limit label: selected gray */
         lv_obj_set_style_text_color(objects.voltage_label_1, lv_color_hex(0xFFFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(objects.voltage_label_1, lv_color_hex(0x444444), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(objects.voltage_label_1, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -412,14 +426,14 @@ void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max) {
     int16_t scaled_value = (int16_t)(value * 10.0f);
     lv_arc_set_value(arc, scaled_value);
 
-    // Clamp vrednost
+    /* Limits */
     if (scaled_value < min) scaled_value = min;
     if (scaled_value > max) scaled_value = max;
 
-    // Izračunaj odnos
+    /* Calculate factor */
     float ratio = (float)(scaled_value - min) / (float)(max - min);
 
-    // Zelena → Žuta → Crvena
+    /* Green -> Yellow -> Red */
     uint8_t r, g;
     if (ratio < 0.5f) {
         r = (uint8_t)(ratio * 2 * 255);
@@ -430,10 +444,10 @@ void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max) {
     }
     lv_color_t arc_color = lv_color_make(r, g, 0);
 
-    // Postavi boju arka
+    /* Set color of arc */
     lv_obj_set_style_arc_color(arc, arc_color, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
-    // Knob boja (opciono)
+    /* Set color of knob */
     lv_obj_set_style_arc_color(arc, lv_color_white(), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_arc_width(arc, 3, LV_PART_KNOB | LV_STATE_DEFAULT);
 }
