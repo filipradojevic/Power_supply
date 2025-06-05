@@ -196,8 +196,6 @@ void task_lvgl_ili9341(void *arg)
 	            lvgl_unlock();
       	   }	
 				
-		} else {
-			Error_Handler();
 		}
     }
 }

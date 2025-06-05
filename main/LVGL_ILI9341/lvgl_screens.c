@@ -121,8 +121,9 @@ void create_main_ui(lv_disp_t *disp)
             // Voltage_Label
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.voltage_label = obj;
-            lv_obj_set_pos(obj, 37, 157);
+            lv_obj_set_pos(obj, 28, 160);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
     		lv_obj_set_style_pad_all(obj, 6, LV_PART_MAIN | LV_STATE_DEFAULT);   
             lv_label_set_text(obj, "Voltage [V]");
@@ -141,9 +142,9 @@ void create_main_ui(lv_disp_t *disp)
             // Vol_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.vol_change = obj;
-            lv_obj_set_pos(obj, 56, 107);
+            lv_obj_set_pos(obj, 47, 102);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_font(obj, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "49.5");
         }
@@ -197,9 +198,9 @@ void create_main_ui(lv_disp_t *disp)
             // Curr_Change
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.curr_change = obj;
-            lv_obj_set_pos(obj, 216, 107);
+            lv_obj_set_pos(obj, 210, 102);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_obj_set_style_text_font(obj, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "1.6");
@@ -208,8 +209,9 @@ void create_main_ui(lv_disp_t *disp)
             // Voltage_Label_1
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.voltage_label_1 = obj;
-            lv_obj_set_pos(obj, 187, 157);
+            lv_obj_set_pos(obj, 180, 160);
             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_label_set_text(obj, "Current [A]");
         }

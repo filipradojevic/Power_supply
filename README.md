@@ -10,6 +10,10 @@ This project uses the **ESP32-S3 DevKitC-1** to control the **RG4850G2** power s
 - Adjusted values are packed and sent as CAN commands to the RG4850G2 power supply.
 - The system enables precise and dynamic control of the power supply’s output parameters in real time.
 
+## Detailed Code Explanation
+
+For a detailed explanation of the code and its workings, please see this [PDF document](/Images/Esp32s3_ILI9341_LVGL_RG4850G2.pdf).
+
 ## Features
 
 - Reading rotary encoder input for setting parameters.
