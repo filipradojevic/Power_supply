@@ -69,6 +69,7 @@ static const uint32_t encoder_timeout_ms = 1000;
 
 static char value_str[16];
 
+
 /* LVGL variables */
 extern lv_disp_t *global_disp; /* Global Current Active Display */
 extern lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
@@ -95,10 +96,11 @@ extern SemaphoreHandle_t watchdog_semaphore;
 void task_lvgl_ili9341(void *arg)
 {
     QueueSetMemberHandle_t activated_queue = NULL;
-    lvgl_data_t lvgl_received;
+    lvgl_bonded_data_t lvgl_received;
     send_type_e voltage_current_flag = SEND_VOLTAGE;
     button_pressed_e button_pressed_flag = BUTTON_NOT_PRESSED;
     uint32_t received_value;
+    
     
     while (1) {
         activated_queue = xQueueSelectFromSet(xQueueSetLvgl, portMAX_DELAY);
@@ -106,13 +108,11 @@ void task_lvgl_ili9341(void *arg)
         if (activated_queue == lvgl_voltage_queue) {
             
             if (xQueueReceive(lvgl_voltage_queue, &received_value, 0) == pdTRUE) {
-
-			    float voltage = ((float)received_value / 1000.0f) - 1.5f;
 				
 				/* Take the mutex */
 			    if (lvgl_lock(-1)) {
 					
-			        change_voltage_value(voltage);
+			        change_voltage_value(&received_value);
         			
         			lv_timer_handler();
 			        
@@ -123,13 +123,11 @@ void task_lvgl_ili9341(void *arg)
         } else if (activated_queue == lvgl_current_queue) {
             
             if (xQueueReceive(lvgl_current_queue, &received_value, 0) == pdTRUE) {
-    
-				float cur_limit = received_value / 30.0f;
 				
 				/* Take the mutex */
 			    if (lvgl_lock(-1)) {
 			        
-			        change_current_limit_value(cur_limit);
+			        change_current_limit_value(&received_value);
         			
 			        lv_timer_handler();
 			        
@@ -210,76 +208,121 @@ void display_error(bool *led_on){
 	
 }
 
-void update_lvgl_display(const lvgl_data_t *data, button_pressed_e button_flag,
+void update_lvgl_display(const lvgl_bonded_data_t *data, button_pressed_e button_flag,
  send_type_e activity_encoder, button_pressed_e *button_pressed_flag) {
     char value_str[32];
     static bool led_state = false;
+    static TickType_t last_update = 0; 
+    TickType_t now_led = xTaskGetTickCount();
+    TickType_t led_update = pdMS_TO_TICKS(250);
 
 	/* Take the mutex */
     if (lvgl_lock(-1)) {
         
         if (*button_pressed_flag == BUTTON_NOT_PRESSED){
-			snprintf(value_str, sizeof(value_str), "%.1f", data->voltage);
+			/* Arcs and texts of power supply 1st */
+			snprintf(value_str, sizeof(value_str), "%.1f", data->display_1.voltage);
             
             lv_label_set_text(objects.vol_change, value_str);
             
-            lv_arc_set_value(objects.obj0, (int)(data->voltage * 10));
+            lv_arc_set_value(objects.obj0, (int)(data->display_1.voltage * 10));
             
-            snprintf(value_str, sizeof(value_str), "%.1f", data->limit);
+            snprintf(value_str, sizeof(value_str), "%.1f", data->display_1.limit);
        		
        		lv_label_set_text(objects.curr_limit_change, value_str);
-           
+		
+			/* Arcs and texts of power supply 2nd */
+			snprintf(value_str, sizeof(value_str), "%.1f", data->display_2.voltage);
+            
+            lv_label_set_text(objects.vol_change_2, value_str);
+            
+            lv_arc_set_value(objects.arc_vol_2, (int)(data->display_2.voltage * 10));
+            
+            snprintf(value_str, sizeof(value_str), "%.1f", data->display_2.limit);
+       		
+       		lv_label_set_text(objects.curr_limit_change, value_str);	
+		  
+		} else{
+			 
+			/* Arcs and texts of power supply 1st */
+			lv_arc_set_value(objects.obj0, (int)(data->display_1.voltage * 10));
+				
+			/* Arcs and texts of power supply 2nd */
+            lv_arc_set_value(objects.arc_vol_2, (int)(data->display_2.voltage * 10));	
+
 		}
-		/* Power slider */
-		int power_value = (int)(data->power);
-		lv_color_t power_color = get_scaled_color(power_value, 0, 2900);
 		
-		lv_slider_set_value(objects.slider_power, power_value, LV_ANIM_OFF);
-		lv_obj_set_style_bg_color(objects.slider_power, power_color, LV_PART_INDICATOR);
-		lv_obj_set_style_bg_color(objects.slider_power, power_color, LV_PART_KNOB);
-
-
-		/* Temperature slider */
-		int temp_value = (int)(data->temp);
-		lv_color_t temp_color = get_scaled_color(temp_value, 10, 70);
-		
-		lv_slider_set_value(objects.slider_temp, temp_value, LV_ANIM_OFF);
-		lv_obj_set_style_bg_color(objects.slider_temp, temp_color, LV_PART_INDICATOR);
-		lv_obj_set_style_bg_color(objects.slider_temp, temp_color, LV_PART_KNOB);
-
-
 		/* Update voltage arc value*/
-		lv_arc_set_value(objects.obj0, (int)(data->voltage * 10));
+		lv_arc_set_value(objects.obj0, (int)(data->display_1.voltage * 10));
 		
         /* Current value*/
-        snprintf(value_str, sizeof(value_str), "%.1f", data->current);
+        snprintf(value_str, sizeof(value_str), "%.1f", data->display_1.current);
         lv_label_set_text(objects.curr_change, value_str);
-        lv_arc_set_value(objects.obj1, (int)(data->current * 10));
+        lv_arc_set_value(objects.obj1, (int)(data->display_1.current * 10));
 
-        /* Temperature value*/
-        snprintf(value_str, sizeof(value_str), "%d", (int)data->temp);
-        lv_label_set_text(objects.temp_value, value_str);
-        lv_slider_set_value(objects.slider_temp, (int)(data->temp), LV_ANIM_OFF);
+		
+		/* Update voltage arc value*/
+		lv_arc_set_value(objects.vol_change_2, (int)(data->display_2.voltage * 10));
+		
+		
+		snprintf(value_str, sizeof(value_str), "%.1f", data->display_2.voltage);
+		lv_label_set_text(objects.vol_change_2, value_str);
+        /* Current value */
+        snprintf(value_str, sizeof(value_str), "%.1f", data->display_2.current);
+        lv_label_set_text(objects.curr_change_2, value_str);
+        lv_arc_set_value(objects.arc_curr_2, (int)(data->display_2.current * 10));
 
-        /* Power value*/
-        snprintf(value_str, sizeof(value_str), "%d", (int)data->power);
-        lv_label_set_text(objects.power_value, value_str);
-        lv_slider_set_value(objects.slider_power, (int)(data->power), LV_ANIM_OFF);
-
-        /* Efficiency value*/
-        snprintf(value_str, sizeof(value_str), "%.1f", data->efficiency);
-        lv_label_set_text(objects.curr_limit_label_1, "Efficiency [%]");
-        lv_label_set_text(objects.effieciency, value_str);
-
+	
         /* --- LED TOGGLE --- */
-        if (led_state) {
+        TickType_t now_led = xTaskGetTickCount();
         
-            lv_led_set_brightness(objects.led, 180);
-        
-        } else {
-        
-            lv_led_set_brightness(objects.led, 0);
-        }
+    	if ((now_led - last_update) > led_update) {
+	        last_update = now_led;  // osveži vreme poslednjeg ažuriranja
+			
+	        if (led_state) {
+								
+				/* LED_TOGGLE */
+	            lv_led_set_brightness(objects.led, 180);
+	        
+	        } else {
+				
+				/* Temperature value*/
+		        snprintf(value_str, sizeof(value_str), "%d", (int)data->display_2.temp);
+		        lv_label_set_text(objects.temp_value, value_str);
+		        lv_slider_set_value(objects.slider_temp, (int)(data->display_2.temp), LV_ANIM_OFF);
+				
+				/* Temperature slider */
+				int temp_value = (int)(data->display_2.temp);
+				lv_color_t temp_color = get_scaled_color(temp_value, 10, 70);
+				
+				lv_slider_set_value(objects.slider_temp, temp_value, LV_ANIM_OFF);
+				lv_obj_set_style_bg_color(objects.slider_temp, temp_color, LV_PART_INDICATOR);
+				lv_obj_set_style_bg_color(objects.slider_temp, temp_color, LV_PART_KNOB);
+				
+		        /* Power value*/
+		        snprintf(value_str, sizeof(value_str), "%d", (int)data->display_2.power);
+		        lv_label_set_text(objects.power_value, value_str);
+		        lv_slider_set_value(objects.slider_power, (int)(data->display_2.power), LV_ANIM_OFF);
+				
+				
+				/* Power slider */
+				int power_value = (int)(data->display_2.power);
+				lv_color_t power_color = get_scaled_color(power_value, 0, 2900);
+				
+				lv_slider_set_value(objects.slider_power, power_value, LV_ANIM_OFF);
+				lv_obj_set_style_bg_color(objects.slider_power, power_color, LV_PART_INDICATOR);
+				lv_obj_set_style_bg_color(objects.slider_power, power_color, LV_PART_KNOB);
+				
+		        /* Efficiency value*/
+		        
+		        snprintf(value_str, sizeof(value_str), "%.1f", data->display_2.efficiency);
+		        lv_label_set_text(objects.curr_limit_label_1, "Efficiency [%]");
+		        lv_label_set_text(objects.effieciency, value_str);
+				
+				/* LED TOGGLE */
+	            lv_led_set_brightness(objects.led, 0);
+	        }
+    	}
         
         /* When it works properly it need to be green color */
         lv_led_set_color(objects.led, lv_color_hex(0xff00ff26));
@@ -322,7 +365,9 @@ void update_lvgl_display(const lvgl_data_t *data, button_pressed_e button_flag,
     }
 }
 
-void change_voltage_value(float voltage){
+void change_voltage_value(uint32_t *received_value){
+	
+	float voltage = ((float)*received_value / 1000.0f) - 1.5f;
 	
 	snprintf(value_str, sizeof(value_str), "%.1f", voltage);  // npr. "48.2 V"
 			        
@@ -331,9 +376,12 @@ void change_voltage_value(float voltage){
 	int16_t arc_val = (int16_t)(voltage * 10.0f);  // Sačuvaj tačnost pre kastovanja
 	
 	lv_arc_set_value(objects.arc3, arc_val);
+	
 }
 
-void change_current_limit_value(float cur_limit){
+void change_current_limit_value(uint32_t *received_value){
+	
+	float cur_limit = ((float)*received_value) / 30.0f;
 	
 	snprintf(value_str, sizeof(value_str), "%.1f", cur_limit);
 			        

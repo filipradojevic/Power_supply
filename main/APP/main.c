@@ -57,7 +57,7 @@
  ******************************************************************************/
 
 /* FreeRTOS defines */
-#define CAN_QUEUE_MAX_SIZE     128
+#define CAN_QUEUE_MAX_SIZE     10
 #define QUEUE_SET_LENGTH       3
 #define QUEUE_SET_LVGL_LENGHT  3
 #define MIN_PRIO_TASK 	       1
@@ -268,7 +268,7 @@ static esp_err_t rtos_objects_init(void) {
         return ESP_FAIL;
     }
     
-    lvgl_update_queue = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(lvgl_data_t));
+    lvgl_update_queue = xQueueCreate(CAN_QUEUE_MAX_SIZE, sizeof(lvgl_bonded_data_t));
     if (lvgl_update_queue == NULL){
         gpio_set_level(GPIO_NUM_48, PIN_STATE_HIGH);
         return ESP_FAIL;

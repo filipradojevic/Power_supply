@@ -50,6 +50,11 @@ typedef struct {
     lv_obj_t *effieciency;
     lv_obj_t *arc3;  // kazaljka za prvi luk
     lv_obj_t *arc4;  // kazaljka za drugi luk
+    lv_obj_t *vol_change_2;
+    lv_obj_t *curr_change_2;
+    lv_obj_t *curr_lim_change_2;
+    lv_obj_t *arc_vol_2;
+    lv_obj_t *arc_curr_2;
 } ui_objects_t;
 
 /******************************************************************************* 

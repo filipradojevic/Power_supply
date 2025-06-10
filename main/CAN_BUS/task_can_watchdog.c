@@ -65,7 +65,7 @@ extern SemaphoreHandle_t watchdog_semaphore;
  
 void task_can_watchdog(void *arg){
 	
-	const TickType_t xDelay = pdMS_TO_TICKS(250);
+	const TickType_t xDelay = pdMS_TO_TICKS(300);
 
     while (1)
     {

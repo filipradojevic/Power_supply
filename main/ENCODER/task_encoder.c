@@ -77,7 +77,7 @@ uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;   /* Current current li
 
 /* Debounce timing for encoder signals */
 static int64_t last_step_time_encoder_pulse_us = 0;     /* Timestamp of last encoder pulse */
-static const int64_t STEP_DEBOUNCE_INTERVAL_US = 17500; /* Debounce interval in microseconds (~17.5ms) */
+static const int64_t STEP_DEBOUNCE_INTERVAL_US = 25000; /* Debounce interval in microseconds (~25ms) */
 static int lastButtonReading = 1;             // poslednje očitano stanje dugmeta
 static int64_t lastDebounceTime = 0;          // vreme poslednje promene
 
@@ -154,16 +154,20 @@ void task_encoder(void *arg) {
                     
                         uint32_t new_voltage_value = pack_current_voltage();
                     
-                        twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
-                    
-                        xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
+                        twai_send_voltage(CAN_SETTING_VALUES_ID, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+            			
+            			twai_send_voltage(CAN_SETTING_VALUES_ID_2, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+            			
+            			xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
                     
                     } else {
                         encoder_current += step;
                     
                         uint32_t new_current_limit = pack_current_limit();
                     
-                        twai_send_current(new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
+                        twai_send_current(CAN_SETTING_VALUES_ID, new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
+                       	
+                       	twai_send_current(CAN_SETTING_VALUES_ID_2, new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
                     
                         xQueueSend(lvgl_current_queue, &new_current_limit, 0);
                     }
@@ -204,18 +208,21 @@ void task_encoder(void *arg) {
             xSemaphoreTake(command_semaphore, 0);
 
             uint32_t new_voltage_value = pack_current_voltage();
-            twai_send_voltage(new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+            
+            twai_send_voltage(CAN_SETTING_VALUES_ID, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
+            
+            twai_send_voltage(CAN_SETTING_VALUES_ID_2, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
         }
     }
 }
 
 
 /* Sending command for a voltage ON/OFF Line */
-void twai_send_voltage(uint32_t new_voltage_value, uint32_t command){
+void twai_send_voltage(uint32_t can_id, uint32_t new_voltage_value, uint32_t command){
 	twai_message_t msg;
     
-    can_init_msg(&msg,
-                 CAN_SETTING_VALUES_ID,
+    can_init_msg (&msg,
+                 can_id,
                  command,
                  new_voltage_value,
                  CAN_COMMAND_FLAG);
@@ -224,14 +231,14 @@ void twai_send_voltage(uint32_t new_voltage_value, uint32_t command){
 }
 
 /* Sending command for a Current LIMIT ON/OFF Line */
-void twai_send_current(uint32_t new_current_limit, uint32_t command){
+void twai_send_current(uint32_t can_id, uint32_t new_current_limit, uint32_t command){
 	twai_message_t msg;
 
-    can_init_msg(&msg,
-                    CAN_SETTING_VALUES_ID,
-                    command,
-                    new_current_limit,
-                    CAN_COMMAND_FLAG);
+    can_init_msg  (&msg,
+                   can_id,
+                   command,
+                   new_current_limit,
+                   CAN_COMMAND_FLAG);
 
     twai_transmit(&msg, pdMS_TO_TICKS(100));
 }

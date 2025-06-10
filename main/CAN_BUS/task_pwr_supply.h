@@ -39,6 +39,14 @@ extern "C" {
 #define CAN_END_OF_REQUEST_VALUES_ID                      0x1081407E
 #define CAN_SETTING_VALUES_ACK_ID                         0x1081807E
 
+/* CAN Message IDs 2*/
+#define CAN_REQUEST_PARAMETERS_ID_2                       0x108040FE
+#define CAN_SETTING_VALUES_ID_2                           0x108280FE
+#define CAN_REQUEST_VALUES_ID_2                           0x1082407F
+#define CAN_END_OF_REQUEST_VALUES_ID_2                    0x1082407E
+#define CAN_SETTING_VALUES_ACK_ID_2                       0x1082807E
+
+
 /* Can Answer parameters IDs*/
 #define CAN_ANSWER_PARAMETERS_INPUT_POWER_ID              0X70
 #define CAN_ANSWER_PARAMETERS_INPUT_FREQ_ID               0X71
@@ -100,14 +108,27 @@ typedef struct {
 } system_stats_t;
 
 
+typedef enum {
+    CAN_GADGET_1 = 0,
+    CAN_GADGET_2 = 1
+} can_gadget_e;
+
 typedef struct {
-	float voltage;
+    float voltage;
     float current;
     float limit;
     float temp;
-    float power;     // npr. 121 (integer power = voltage * current)
+    float power;
     float efficiency;
+    can_gadget_e display_id;  // 1 za display_1, 2 za display_2
+    uint8_t updated;
 } lvgl_data_t;
+
+typedef struct{
+	lvgl_data_t display_1;
+	lvgl_data_t display_2;
+} lvgl_bonded_data_t;
+
 
 /******************************************************************************* 
  * Global Variables 
@@ -132,7 +153,7 @@ void IRAM_ATTR my_can_rx_callback(void* arg);
  *
  * @param[in] data  Pointer to received CAN payload.
  */
-void parse_statistics(uint8_t *data);
+void parse_statistics(uint8_t *data, volatile system_stats_t *g_stats);
 
 /**
  * @brief Initializes a CAN message structure with specified parameters.

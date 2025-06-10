@@ -123,8 +123,8 @@ bool lvgl_lock(int timeout_ms);
 
 void lvgl_unlock(void);
 
-void update_lvgl_display(const lvgl_data_t *data, button_pressed_e button_flag, 
-													send_type_e activity_encoder, button_pressed_e *button_pressed_flag);
+void update_lvgl_display(const lvgl_bonded_data_t *data, button_pressed_e button_flag,
+ send_type_e activity_encoder, button_pressed_e *button_pressed_flag);
 
 void set_arc_value_and_color(lv_obj_t *arc, float value, int min, int max);
 
@@ -136,8 +136,8 @@ void display_error(bool *led_on);
 
 lv_color_t get_scaled_color(int value, int min, int max);
 
-void change_voltage_value(float voltage);
+void change_voltage_value(uint32_t *received_value);
 
-void change_current_limit_value(float cur_limit);
+void change_current_limit_value(uint32_t *received_value);
 
 #endif /* MAIN_TASK_LVGL_PORT_H_ */

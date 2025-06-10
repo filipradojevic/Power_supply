@@ -104,11 +104,11 @@ uint32_t pack_current_voltage();
 /**
  * @brief Sends current limit command over TWAI.
  */
-void twai_send_current(uint32_t new_current_limit, uint32_t command);
+void twai_send_current(uint32_t can_id, uint32_t new_current_limit, uint32_t command);
 
 /**
  * @brief Sends voltage command over TWAI.
  */
-void twai_send_voltage(uint32_t new_voltage_value, uint32_t command);
+void twai_send_voltage(uint32_t can_id, uint32_t new_voltage_value, uint32_t command);
 
 #endif /* MAIN_TASK_ENCODER_H_ */

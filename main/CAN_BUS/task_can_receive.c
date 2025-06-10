@@ -74,7 +74,7 @@ void task_can_receive(void *arg)
     twai_message_t rx_msg;
     uint32_t alerts;
     esp_err_t ret;
-    
+
     while (1) {
         /* Wait for alerts to raise */
         ret = twai_read_alerts(&alerts, pdMS_TO_TICKS(1000));
@@ -83,10 +83,21 @@ void task_can_receive(void *arg)
             if (alerts & TWAI_ALERT_RX_DATA) {
                 if (twai_receive(&rx_msg, portMAX_DELAY) == ESP_OK) {
                     
-                    /* Update flag for watchdog task */
-                    can_alive_flag = true;
-                    
-                    xQueueSend(xQueueCan, &rx_msg, 0);
+                    /* Provera CAN ID */
+                    if (rx_msg.identifier == CAN_REQUEST_VALUES_ID ||
+                        rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID ||
+                        rx_msg.identifier == CAN_REQUEST_VALUES_ID_2 ||
+                        rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) {
+
+                        /* Update flag for watchdog task */
+                        can_alive_flag = true;
+
+                        /* Pošalji poruku u CAN red */
+                        xQueueSend(xQueueCan, &rx_msg, 0);
+                    }
+
+                    // Ako želiš da loguješ ili obradiš ostale poruke, možeš ovde dodati else
+                    // else { printf("Nepoznata CAN poruka: %x\n", rx_msg.identifier); }
                 }
             }
 
