@@ -139,6 +139,17 @@ typedef struct{
  * Function Prototypes 
  ******************************************************************************/
 
+static inline void update_display(lvgl_data_t *display, system_stats_t g_stats, uint8_t display_id){
+    display->voltage    = g_stats.output_voltage;
+    display->current    = g_stats.output_current_1;
+    display->limit      = g_stats.output_current_max;
+    display->temp       = g_stats.output_temp;
+    display->power      = g_stats.output_voltage * g_stats.output_current_1;
+    display->efficiency = g_stats.efficiency;
+    display->display_id = display_id;
+    display->updated    = 1;
+}
+
 /**
  * @brief Callback triggered by CAN receive interrupt.
  *

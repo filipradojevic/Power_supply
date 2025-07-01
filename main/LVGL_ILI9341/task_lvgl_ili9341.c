@@ -120,7 +120,8 @@ void task_lvgl_ili9341(void *arg)
 			    }
 			}
 
-        } else if (activated_queue == lvgl_current_queue) {
+        } 
+		else if (activated_queue == lvgl_current_queue) {
             
             if (xQueueReceive(lvgl_current_queue, &received_value, 0) == pdTRUE) {
 				
@@ -136,7 +137,8 @@ void task_lvgl_ili9341(void *arg)
 			} 
 			
 			
-        } else if (activated_queue == lvgl_update_queue) {
+        } 
+		else if (activated_queue == lvgl_update_queue) {
 			  
 			  if (xQueueReceive(lvgl_update_queue, &lvgl_received, 0) == pdTRUE) {
 			  	
@@ -147,7 +149,8 @@ void task_lvgl_ili9341(void *arg)
 			  						
     		  }
     		
-		} else if (activated_queue == lvgl_bolding_update) {
+		} 
+		else if (activated_queue == lvgl_bolding_update) {
 			  if (xQueueReceive(lvgl_bolding_update, &voltage_current_flag, 0) == pdTRUE) {
 			     if (lvgl_lock(-1)) {
 					
@@ -159,7 +162,8 @@ void task_lvgl_ili9341(void *arg)
 			    } 
 			 }
 			
-		} else if (activated_queue == lvgl_button_pressed) {
+		} 
+		else if (activated_queue == lvgl_button_pressed) {
 			  if (xQueueReceive(lvgl_button_pressed, &button_pressed_flag, 0) == pdTRUE) {
 			     if (lvgl_lock(-1)) {
 					
@@ -170,7 +174,8 @@ void task_lvgl_ili9341(void *arg)
 			        lvgl_unlock();
 			    } 
 			 }
-    	} else if (activated_queue == watchdog_semaphore) {
+    	} 
+		else if (activated_queue == watchdog_semaphore) {
 			
 			xSemaphoreTake(watchdog_semaphore, 0);
 	        

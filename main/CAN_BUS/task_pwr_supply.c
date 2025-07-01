@@ -78,6 +78,7 @@ lvgl_data_t display_1 = {0};
 lvgl_data_t display_2 = {0};
 
 lvgl_bonded_data_t screen = {0};
+
 /*******************************************************************************
  * Main function
  ******************************************************************************/
@@ -106,33 +107,15 @@ void task_pwr_supply(void *arg)
 	                parse_statistics(rx_msg.data, &g_stats_1);
 	                
 	                if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID &&  rx_msg.data[1] == CAN_ANSWER_PARAMETERS_UNKNOWN_ID) {
-						
-						    display_1.voltage    = g_stats_1.output_voltage;
-						    display_1.current    = g_stats_1.output_current_1;
-						    display_1.limit      = g_stats_1.output_current_max;
-						    display_1.temp       = g_stats_1.output_temp;
-						    display_1.power      = g_stats_1.output_voltage * g_stats_1.output_current_1;
-						    display_1.efficiency = g_stats_1.efficiency;
-                            display_1.display_id = CAN_GADGET_1;
-                            display_1.updated    = 1;
-						
+							update_display(&display_1, g_stats_1, CAN_GADGET_1);
 	                }
-	            } else if(rx_msg.identifier == CAN_REQUEST_VALUES_ID_2 || rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) {
-	
+	            } 
+				else if(rx_msg.identifier == CAN_REQUEST_VALUES_ID_2 || rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) {
 					/* PARSE THE DATA */
 	                parse_statistics(rx_msg.data, &g_stats_2);
 	                
 	                if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2 &&  rx_msg.data[1] == CAN_ANSWER_PARAMETERS_UNKNOWN_ID) {
-						    
-						    display_2.voltage    = g_stats_2.output_voltage;
-						    display_2.current    = g_stats_2.output_current_1;
-						    display_2.limit      = g_stats_2.output_current_max;
-						    display_2.temp       = g_stats_2.output_temp;
-						    display_2.power      = g_stats_2.output_voltage * g_stats_2.output_current_1;
-						    display_2.efficiency = g_stats_2.efficiency;
-                            display_2.display_id = CAN_GADGET_2;
-                            display_2.updated    = 1;
-						
+							update_display(&display_2, g_stats_2, CAN_GADGET_2);
 	                }
 	            }
 	            
@@ -166,13 +149,14 @@ void can_init_msg(twai_message_t *msg, uint32_t id, uint32_t command, uint32_t v
     if (flag == CAN_COMMAND_FLAG) {
         msg->data[0] = (command >> 24) & 0xFF;
         msg->data[1] = (command >> 16) & 0xFF;
-        msg->data[2] = (command >> 8) & 0xFF;
-        msg->data[3] = command & 0xFF;
-        msg->data[4] = (value >> 24) & 0xFF;
-        msg->data[5] = (value >> 16) & 0xFF;
-        msg->data[6] = (value >> 8) & 0xFF;
-        msg->data[7] = value & 0xFF;
-    } else {
+        msg->data[2] = (command >> 8 ) & 0xFF;
+        msg->data[3] = (command >> 0 ) & 0xFF;
+        msg->data[4] = (value   >> 24) & 0xFF;
+        msg->data[5] = (value   >> 16) & 0xFF;
+        msg->data[6] = (value   >> 8 ) & 0xFF;
+        msg->data[7] = (value   >> 0 ) & 0xFF;
+    } 
+	else {
         memset(msg->data, 0, 8);
     }
 }
@@ -180,10 +164,10 @@ void can_init_msg(twai_message_t *msg, uint32_t id, uint32_t command, uint32_t v
 void parse_statistics(uint8_t *data, volatile system_stats_t *g_stats)
 {
     uint8_t command = data[1];
-    uint32_t value = ((uint32_t)data[4] << 24) |
-                     ((uint32_t)data[5] << 16) |
-                     ((uint32_t)data[6] << 8)  |
-                     ((uint32_t)data[7]);
+    uint32_t value = ((uint32_t)data[4] << 24)|
+                     ((uint32_t)data[5] << 16)|
+                     ((uint32_t)data[6] << 8 )|
+                     ((uint32_t)data[7] << 0 );
 
 
     switch (command) {
