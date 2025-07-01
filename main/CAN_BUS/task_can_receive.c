@@ -71,37 +71,34 @@ extern QueueHandle_t xQueueCan;
  
 void task_can_receive(void *arg)
 {
-    twai_message_t rx_msg;
+    twai_message_t rx_can_msg;
     uint32_t alerts;
     esp_err_t ret;
 
     while (1) {
         /* Wait for alerts to raise */
         ret = twai_read_alerts(&alerts, pdMS_TO_TICKS(1000));
-        if (ret == ESP_OK) {
+            
+        /* Check read alerts*/
+        if (ret == ESP_OK) {   
             /* Check if RX triggered CAN */
-            if (alerts & TWAI_ALERT_RX_DATA) {
-                if (twai_receive(&rx_msg, portMAX_DELAY) == ESP_OK) {
-                    
-                    /* Provera CAN ID */
-                    if (rx_msg.identifier == CAN_REQUEST_VALUES_ID ||
-                        rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID ||
-                        rx_msg.identifier == CAN_REQUEST_VALUES_ID_2 ||
-                        rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) {
-
-                        /* Update flag for watchdog task */
+            if (alerts & TWAI_ALERT_RX_DATA) {  
+                /* Take CAN message */
+                if (twai_receive(&rx_can_msg, portMAX_DELAY) == ESP_OK) {    
+                    /* Filter relevant CAN IDs */
+                    if (rx_can_msg.identifier == CAN_REQUEST_VALUES_ID_1        ||
+                        rx_can_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_1 ||
+                        rx_can_msg.identifier == CAN_REQUEST_VALUES_ID_2        ||
+                        rx_can_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) 
+                    {
+                        /* Signal CAN activity for watchdog */
                         can_alive_flag = true;
 
-                        /* Pošalji poruku u CAN red */
-                        xQueueSend(xQueueCan, &rx_msg, 0);
+                        /* Send the received CAN message to the queue */
+                        xQueueSend(xQueueCan, &rx_can_msg, 0);
                     }
-
-                    // Ako želiš da loguješ ili obradiš ostale poruke, možeš ovde dodati else
-                    // else { printf("Nepoznata CAN poruka: %x\n", rx_msg.identifier); }
                 }
             }
-
-            // TODO: Process other flags, consult with Slavoljub...
         }
     }
 }

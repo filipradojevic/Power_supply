@@ -66,27 +66,26 @@
  ******************************************************************************/
 
 /* Encoder and button state */
-static send_type_e current_send_flag = SEND_VOLTAGE;   /* Current parameter being adjusted (voltage or current) */
+static send_type_e current_send_flag = SEND_VOLTAGE;          /* Current parameter being adjusted (voltage or current) */
 static button_pressed_e button_flag = BUTTON_NOT_PRESSED;     /* State of the encoder button */
-volatile int encoder_voltage = 0;                       /* Encoder step count for voltage */
-volatile int encoder_current = 0;                       /* Encoder step count for current */
+
+volatile int encoder_voltage = 0;                             /* Encoder step count for voltage */
+volatile int encoder_current = 0;                             /* Encoder step count for current */
 
 /* Current CAN parameter values */
-uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;   /* Current voltage value */
-uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;   /* Current current limit */
+uint32_t curr_voltage_value = CAN_DEFAULT_VOLTAGE_VALUE;      /* Current voltage value */
+uint32_t curr_current_value = CAN_DEFAULT_CURRENT_LIMIT;      /* Current current limit */
 
 /* Debounce timing for encoder signals */
-static int64_t last_step_time_encoder_pulse_us = 0;     /* Timestamp of last encoder pulse */
-static const int64_t STEP_DEBOUNCE_INTERVAL_US = 25000; /* Debounce interval in microseconds (~25ms) */
-static int lastButtonReading = 1;             // poslednje očitano stanje dugmeta
-static int64_t lastDebounceTime = 0;          // vreme poslednje promene
+static int64_t last_step_time_encoder_pulse_us = 0;           /* Timestamp of last encoder pulse */
+static int64_t lastDebounceTime = 0;                          /* Time from last change */
+static const int64_t STEP_DEBOUNCE_INTERVAL_US = 25000;       /* Debounce interval in microseconds (~25ms) */
+static int lastButtonReading = 1;                             /* Last read state of the button */
 
 /*******************************************************************************
  * UI Object References
  ******************************************************************************/
-
 extern ui_objects_t objects;                            /* Structure containing all UI objects */
-
 
 /*******************************************************************************
  * FreeRTOS Objects
@@ -115,23 +114,28 @@ void task_encoder(void *arg) {
     QueueSetMemberHandle_t activated_handle = NULL;
 
     while (1) {
+        /* Wait indefinitely for one of the semaphores in the queue set to become available */
         activated_handle = xQueueSelectFromSet(xQueueSetEncoder, portMAX_DELAY);
 
-        /* Encoder rotation event */
+        /* Handle encoder rotation event */
         if (activated_handle == encoder_semaphore) {
+            /* Take encoder semaphore */
             xSemaphoreTake(encoder_semaphore, 0);
 
+            /* Small delay for signal stabilization */
             for (i = 0; i < 2500; i++);
 
+            /* Read encoder pin states */
             int clk_level = gpio_get_level(ENCODER_CLK_PIN);
-            int dt_level = gpio_get_level(ENCODER_DT_PIN);
-            int step = 0;
+            int dt_level  = gpio_get_level(ENCODER_DT_PIN);
+            int step      = 0;
 
-            if (clk_level == 1) step = (dt_level  != clk_level) ? +1 : -1;
+            /* Determine rotation direction */
+            if (clk_level == 1) step = (dt_level != clk_level) ? +1 : -1;
 
             if (step != 0) {
 				
-				/* Software Debounce */
+				/* Software debounce: check time since last step */
                 int64_t now_pulse = esp_timer_get_time();
 
                 if ((now_pulse - last_step_time_encoder_pulse_us) < STEP_DEBOUNCE_INTERVAL_US)
@@ -139,14 +143,16 @@ void task_encoder(void *arg) {
 
                 last_step_time_encoder_pulse_us = now_pulse;
 
+                /* Check if button is not pressed */
                 if (button_flag == BUTTON_NOT_PRESSED) {
                     
-                    /* Select parameter to adjust */
+                    /* Select parameter to adjust based on step direction */
                     current_send_flag = (step > 0) ? SEND_CURRENT_LIMIT : SEND_VOLTAGE;
                     
+                    /* Notify display update task */
                     xQueueSend(lvgl_bolding_update, &current_send_flag, 0);
-                
-                } else {
+                } 
+                else {
                     
                     /* Update selected parameter */
                     if (current_send_flag == SEND_VOLTAGE) {
@@ -154,63 +160,67 @@ void task_encoder(void *arg) {
                     
                         uint32_t new_voltage_value = pack_current_voltage();
                     
-                        twai_send_voltage(CAN_SETTING_VALUES_ID, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
-            			
+                        /* Send updated voltage to both CAN devices */
+                        twai_send_voltage(CAN_SETTING_VALUES_ID_1, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
             			twai_send_voltage(CAN_SETTING_VALUES_ID_2, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
             			
+                        /* Notify display task with new voltage */
             			xQueueSend(lvgl_voltage_queue, &new_voltage_value, 0);
-                    
-                    } else {
+                    } 
+                    else {
                         encoder_current += step;
                     
                         uint32_t new_current_limit = pack_current_limit();
                     
-                        twai_send_current(CAN_SETTING_VALUES_ID, new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
-                       	
+                        /* Send updated current limit to both CAN devices */
+                        twai_send_current(CAN_SETTING_VALUES_ID_1, new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
                        	twai_send_current(CAN_SETTING_VALUES_ID_2, new_current_limit, CAN_SETTING_VALUES_ON_LINE_CURRENT_LIMIT);
                     
+                        /* Notify display task with new current limit */
                         xQueueSend(lvgl_current_queue, &new_current_limit, 0);
                     }
                 }
             }
-
-        /* Encoder button press event */
-        } else if (activated_handle == switch_semaphore) {
+        }
+        /* Handle encoder button press event */ 
+        else if (activated_handle == switch_semaphore) {
+            /* Take button semaphore */
 			xSemaphoreTake(switch_semaphore, 0);
 			
-			/* Software Debounce */
+			/* Software debounce for button press */
 		    int reading = gpio_get_level(ENCODER_SW_PIN);
-		    
 		    int64_t now = esp_timer_get_time();
 		
 		    if (reading != lastButtonReading) {
-		        lastDebounceTime = now;
+		        lastDebounceTime  = now;
 		        lastButtonReading = reading;
 		    }
 		
 		    if ((now - lastDebounceTime) > DEBOUNCE_DELAY_US) {
-		        
 		        int reading = gpio_get_level(ENCODER_SW_PIN);
 		          
+                /* On button press (active low), toggle button flag */
 	            if (reading == 0) {
-	                /* Toggle button_flag */
 	                button_flag = (button_flag == BUTTON_PRESSED) ? BUTTON_NOT_PRESSED : BUTTON_PRESSED;
 	                
+                    /* Notify display task of button press */
 	                xQueueSend(lvgl_button_pressed, &button_flag, 0);
 	                
+                    /* Reset lastButtonReading to avoid multiple toggles */
 	                lastButtonReading = 1;
 	            }
 		    }
-		    
-		    
-        /* Periodic command event to prevent device reset */
-        } else if (activated_handle == command_semaphore) {
+        }
+        /* Handle periodic command semaphore to prevent device reset */
+        else if (activated_handle == command_semaphore) {
+            /* Take command semaphore */
             xSemaphoreTake(command_semaphore, 0);
 
+            /* Pack current voltage value */
             uint32_t new_voltage_value = pack_current_voltage();
             
-            twai_send_voltage(CAN_SETTING_VALUES_ID, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
-            
+            /* Send current voltage periodically to CAN devices */
+            twai_send_voltage(CAN_SETTING_VALUES_ID_1, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
             twai_send_voltage(CAN_SETTING_VALUES_ID_2, new_voltage_value, CAN_SETTING_VALUES_ON_LINE_OUTPUT_VOLTAGE);
         }
     }
@@ -219,62 +229,63 @@ void task_encoder(void *arg) {
 
 /* Sending command for a voltage ON/OFF Line */
 void twai_send_voltage(uint32_t can_id, uint32_t new_voltage_value, uint32_t command){
-	twai_message_t msg;
-    
-    can_init_msg (&msg,
-                 can_id,
-                 command,
-                 new_voltage_value,
-                 CAN_COMMAND_FLAG);
+	twai_message_t can_msg;
 
-    twai_transmit(&msg, pdMS_TO_TICKS(100));
+    /* Initialize CAN message with given parameters */
+    can_init_msg(&can_msg, can_id, command, new_voltage_value, CAN_COMMAND_FLAG);
+
+    /* Transmit the CAN message with a timeout of 100 ms */
+    twai_transmit(&can_msg, pdMS_TO_TICKS(100));
 }
 
 /* Sending command for a Current LIMIT ON/OFF Line */
 void twai_send_current(uint32_t can_id, uint32_t new_current_limit, uint32_t command){
-	twai_message_t msg;
+	twai_message_t can_msg;
+    
+    /* Initialize CAN message with given parameters */
+    can_init_msg(&can_msg, can_id, command, new_current_limit, CAN_COMMAND_FLAG);
 
-    can_init_msg  (&msg,
-                   can_id,
-                   command,
-                   new_current_limit,
-                   CAN_COMMAND_FLAG);
-
-    twai_transmit(&msg, pdMS_TO_TICKS(100));
+    /* Transmit the CAN message with a timeout of 100 ms */
+    twai_transmit(&can_msg, pdMS_TO_TICKS(100));
 }
 
-/* Packing structure for voltage */
+/* Packing structure for current limit*/
 uint32_t pack_current_limit(){
-    /* Formula for new current limit to be send */
+    /* Calculate new current limit based on encoder steps */
 	int32_t new_current_limit = (int32_t)CAN_DEFAULT_CURRENT_LIMIT + encoder_current * (int32_t)CURRENT_STEP_HEX;
 
-    /* Check limits */
-    if (new_current_limit < (int32_t)MIN_CURRENT_LIMIT_VALUE)
+    /* Clamp new current limit within defined bounds */
+    if (new_current_limit < (int32_t)MIN_CURRENT_LIMIT_VALUE){
         new_current_limit = (int32_t)MIN_CURRENT_LIMIT_VALUE;
 		encoder_current = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
-    
-    if (new_current_limit > (int32_t)MAX_CURRENT_LIMIT_VALUE)
+    }
+    if (new_current_limit > (int32_t)MAX_CURRENT_LIMIT_VALUE){
         new_current_limit = (int32_t)MAX_CURRENT_LIMIT_VALUE;
 		encoder_current = (new_current_limit - (int32_t)CAN_DEFAULT_CURRENT_LIMIT) / CURRENT_STEP_HEX;
+    }
 
+    /* Update global current limit value */
 	curr_current_value = (uint32_t)new_current_limit;
+    
     return curr_current_value;
 }
 
-/* Packing structure for current limit */
+/* Packing structure for voltage */
 uint32_t pack_current_voltage(){
-	/* Formula for new voltage to be send */
+	/* Calculate new voltage based on encoder steps */
     int32_t new_voltage = (int32_t)CAN_DEFAULT_VOLTAGE_VALUE + encoder_voltage * (int32_t)VOLTAGE_STEP_HEX;
 	
-	/* Check limits */
-    if (new_voltage < (int32_t)MIN_VOLTAGE_VALUE)
+	/* Clamp new voltage within defined bounds */
+    if (new_voltage < (int32_t)MIN_VOLTAGE_VALUE){
         new_voltage = (int32_t)MIN_VOLTAGE_VALUE;								
 		encoder_voltage = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
-    
-    if (new_voltage > (int32_t)MAX_VOLTAGE_VALUE)
+    }
+    if (new_voltage > (int32_t)MAX_VOLTAGE_VALUE){
         new_voltage = (int32_t)MAX_VOLTAGE_VALUE;
 		encoder_voltage = (new_voltage - (int32_t)CAN_DEFAULT_VOLTAGE_VALUE) / VOLTAGE_STEP_HEX;
+    }
 
+    /* Update global voltage value */
     curr_voltage_value = (uint32_t)new_voltage;
 
     return curr_voltage_value;

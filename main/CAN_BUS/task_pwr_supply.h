@@ -33,11 +33,11 @@ extern "C" {
  ******************************************************************************/
 
 /* CAN Message IDs */
-#define CAN_REQUEST_PARAMETERS_ID                         0x108040FE
-#define CAN_SETTING_VALUES_ID                             0x108180FE
-#define CAN_REQUEST_VALUES_ID                             0x1081407F
-#define CAN_END_OF_REQUEST_VALUES_ID                      0x1081407E
-#define CAN_SETTING_VALUES_ACK_ID                         0x1081807E
+#define CAN_REQUEST_PARAMETERS_ID_1                       0x108040FE
+#define CAN_SETTING_VALUES_ID_1                           0x108180FE
+#define CAN_REQUEST_VALUES_ID_1                           0x1081407F
+#define CAN_END_OF_REQUEST_VALUES_ID_1                    0x1081407E
+#define CAN_SETTING_VALUES_ACK_ID_1                       0x1081807E
 
 /* CAN Message IDs 2*/
 #define CAN_REQUEST_PARAMETERS_ID_2                       0x108040FE
@@ -139,13 +139,24 @@ typedef struct{
  * Function Prototypes 
  ******************************************************************************/
 
-static inline void update_display(lvgl_data_t *display, system_stats_t g_stats, uint8_t display_id){
-    display->voltage    = g_stats.output_voltage;
-    display->current    = g_stats.output_current_1;
-    display->limit      = g_stats.output_current_max;
-    display->temp       = g_stats.output_temp;
-    display->power      = g_stats.output_voltage * g_stats.output_current_1;
-    display->efficiency = g_stats.efficiency;
+/**
+ * @brief Updates the display structure with current system statistics.
+ *
+ * Copies relevant data from the provided system statistics into the display
+ * structure and marks the display as updated. Also assigns the given display ID.
+ *
+ * @param display      Pointer to the display data structure to update.
+ * @param system_stats The system statistics to copy data from.
+ * @param display_id   Identifier for the display (e.g., gadget ID).
+ */
+
+static inline void update_display(lvgl_data_t *display, system_stats_t system_stats, uint8_t display_id){
+    display->voltage    = system_stats.output_voltage;
+    display->current    = system_stats.output_current_1;
+    display->limit      = system_stats.output_current_max;
+    display->temp       = system_stats.output_temp;
+    display->power      = system_stats.output_voltage * system_stats.output_current_1;
+    display->efficiency = system_stats.efficiency;
     display->display_id = display_id;
     display->updated    = 1;
 }
@@ -153,8 +164,7 @@ static inline void update_display(lvgl_data_t *display, system_stats_t g_stats, 
 /**
  * @brief Callback triggered by CAN receive interrupt.
  *
- * @param[in] usr_arg     User-defined argument (optional).
- * @param[in] int_status  Interrupt status register.
+ * @param[in] arg     User-defined argument (optional).
  */
 
 void IRAM_ATTR my_can_rx_callback(void* arg);
@@ -163,8 +173,10 @@ void IRAM_ATTR my_can_rx_callback(void* arg);
  * @brief Parses raw CAN data into the system statistics structure.
  *
  * @param[in] data  Pointer to received CAN payload.
+ * @param system_stats structure in which we parse the data.
  */
-void parse_statistics(uint8_t *data, volatile system_stats_t *g_stats);
+
+void parse_statistics(uint8_t *data, volatile system_stats_t *system_stats);
 
 /**
  * @brief Initializes a CAN message structure with specified parameters.
@@ -178,11 +190,6 @@ void parse_statistics(uint8_t *data, volatile system_stats_t *g_stats);
 
 void can_init_msg(twai_message_t *msg, uint32_t id, uint32_t command, uint32_t value, uint8_t flag);
 
-/**
- * @brief Generates the next hexadecimal value for voltage sweep.
- *
- * @return Next voltage value in hexadecimal format.
- */
 
 #ifdef __cplusplus
 }

@@ -496,28 +496,21 @@ menu "LVGL configuration"
                 bool "Enable Montserrat 10"
             config LV_FONT_MONTSERRAT_12
                 bool "Enable Montserrat 12"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_14
                 bool "Enable Montserrat 14"
                 default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_16
                 bool "Enable Montserrat 16"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_18
                 bool "Enable Montserrat 18"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_20
                 bool "Enable Montserrat 20"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_22
                 bool "Enable Montserrat 22"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_24
                 bool "Enable Montserrat 24"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_26
                 bool "Enable Montserrat 26"
-                default y if !LV_CONF_MINIMAL
             config LV_FONT_MONTSERRAT_28
                 bool "Enable Montserrat 28"
             config LV_FONT_MONTSERRAT_30

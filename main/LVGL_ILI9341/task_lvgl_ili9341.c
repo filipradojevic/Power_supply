@@ -103,92 +103,121 @@ void task_lvgl_ili9341(void *arg)
     
     
     while (1) {
+		/* Wait indefinitely until one of the queues/semaphores in the set has data */
         activated_queue = xQueueSelectFromSet(xQueueSetLvgl, portMAX_DELAY);
 
+		/* Handle voltage updates from the voltage queue */
         if (activated_queue == lvgl_voltage_queue) {
             
+			/* Try to receive a new voltage value */
             if (xQueueReceive(lvgl_voltage_queue, &received_value, 0) == pdTRUE) {
 				
-				/* Take the mutex */
+				/* Take LVGL mutex before modifying UI */
 			    if (lvgl_lock(-1)) {
-					
+
+					/* Update voltage value in the UI */
 			        change_voltage_value(&received_value);
         			
+					/* Handle LVGL timers and tasks */
         			lv_timer_handler();
 			        
+					/* Release LVGL mutex */
 			        lvgl_unlock();
 			    }
 			}
-
         } 
+		/* Handle current limit updates from the current queue */
 		else if (activated_queue == lvgl_current_queue) {
             
+			/* Try to receive a new current limit value */
             if (xQueueReceive(lvgl_current_queue, &received_value, 0) == pdTRUE) {
 				
-				/* Take the mutex */
+				/* Take LVGL mutex before modifying UI */
 			    if (lvgl_lock(-1)) {
 			        
+					/* Update current limit value in the UI */
 			        change_current_limit_value(&received_value);
         			
+					/* Handle LVGL timers and tasks */
 			        lv_timer_handler();
 			        
+					/* Release LVGL mutex */
 			        lvgl_unlock();
 			    }
 			} 
-			
-			
         } 
+		/* Handle general LVGL update requests */
 		else if (activated_queue == lvgl_update_queue) {
 			  
-			  if (xQueueReceive(lvgl_update_queue, &lvgl_received, 0) == pdTRUE) {
-			  	
-			  	 update_lvgl_display(&lvgl_received,
-			  						button_pressed_flag,
-			  						voltage_current_flag, 
-			  						&button_pressed_flag);
-			  						
-    		  }
-    		
-		} 
-		else if (activated_queue == lvgl_bolding_update) {
-			  if (xQueueReceive(lvgl_bolding_update, &voltage_current_flag, 0) == pdTRUE) {
-			     if (lvgl_lock(-1)) {
-					
-			        update_voltage_current_labels(voltage_current_flag);
-			        
-			        lv_timer_handler();
-			        
-			        lvgl_unlock();
-			    } 
-			 }
+			/* Try to receive update parameters */
+			if (xQueueReceive(lvgl_update_queue, &lvgl_received, 0) == pdTRUE) {
 			
+				/* Update LVGL display based on received data and button/flag states */
+				update_lvgl_display(&lvgl_received,
+									button_pressed_flag,
+									voltage_current_flag, 
+									&button_pressed_flag
+								);
+			}
 		} 
-		else if (activated_queue == lvgl_button_pressed) {
-			  if (xQueueReceive(lvgl_button_pressed, &button_pressed_flag, 0) == pdTRUE) {
-			     if (lvgl_lock(-1)) {
+		/* Handle updates that require label bolding changes */
+		else if (activated_queue == lvgl_bolding_update) {
+		
+			/* Try to receive which label (voltage/current) should be bolded */
+			if (xQueueReceive(lvgl_bolding_update, &voltage_current_flag, 0) == pdTRUE) {
+				
+				/* Take LVGL mutex before UI update */
+				if (lvgl_lock(-1)) {
 					
-			        update_voltage_current_change(button_pressed_flag, voltage_current_flag);
-			       
-			        lv_timer_handler();
-			        
-			        lvgl_unlock();
-			    } 
-			 }
+					/* Update voltage/current labels styling */
+					update_voltage_current_labels(voltage_current_flag);
+					
+					/* Handle LVGL timers and tasks */
+					lv_timer_handler();
+					
+					/* Release LVGL mutex */
+					lvgl_unlock();
+				} 
+			}
+		}
+		/* Handle encoder button press events */
+		else if (activated_queue == lvgl_button_pressed) {
+
+			/* Try to receive button pressed flag */
+			if (xQueueReceive(lvgl_button_pressed, &button_pressed_flag, 0) == pdTRUE) {
+				
+				/* Take LVGL mutex before UI update */
+				if (lvgl_lock(-1)) {
+				
+					/* Update UI based on button press and voltage/current selection */
+					update_voltage_current_change(button_pressed_flag, voltage_current_flag);
+					
+					/* Handle LVGL timers and tasks */
+					lv_timer_handler();
+					
+					/* Release LVGL mutex */
+					lvgl_unlock();
+				} 
+			}
     	} 
+		/* Handle watchdog semaphore events */
 		else if (activated_queue == watchdog_semaphore) {
 			
+			/* Take the watchdog semaphore */
 			xSemaphoreTake(watchdog_semaphore, 0);
 	        
+			/* Take LVGL mutex before UI update */
 	        if (lvgl_lock(-1)) {
 	            
-				
+				/* Display error or LED indication */
 				display_error(&led_on);
 				
+				/* Handle LVGL timers and tasks */
 	            lv_timer_handler();
 	            
+				/* Release LVGL mutex */
 	            lvgl_unlock();
-      	   }	
-				
+      	   }		
 		}
     }
 }
@@ -202,7 +231,8 @@ void display_error(bool *led_on){
 	    lv_led_set_brightness(objects.led, 255);  /* Full brightness */
 	    lv_label_set_text(objects.curr_limit_label_1, "CAN BUS ERROR");
 	    lv_label_set_text(objects.effieciency, "");
-	} else {
+	} 
+	else {
 	    lv_led_set_brightness(objects.led, 50);   /* Dimmed brightness */
 	    lv_label_set_text(objects.curr_limit_label_1, "");
 	    lv_label_set_text(objects.effieciency, "");
@@ -213,8 +243,11 @@ void display_error(bool *led_on){
 	
 }
 
-void update_lvgl_display(const lvgl_bonded_data_t *data, button_pressed_e button_flag,
- send_type_e activity_encoder, button_pressed_e *button_pressed_flag) {
+void update_lvgl_display(const lvgl_bonded_data_t *data, 
+						 button_pressed_e button_flag,
+ 						 send_type_e activity_encoder, 
+						 button_pressed_e *button_pressed_flag) 
+{
     char value_str[32];
     static bool led_state = false;
     static TickType_t last_update = 0; 
@@ -247,7 +280,8 @@ void update_lvgl_display(const lvgl_bonded_data_t *data, button_pressed_e button
        		
        		lv_label_set_text(objects.curr_limit_change, value_str);	
 		  
-		} else{
+		} 
+		else{
 			 
 			/* Arcs and texts of power supply 1st */
 			lv_arc_set_value(objects.obj0, (int)(data->display_1.voltage * 10));
