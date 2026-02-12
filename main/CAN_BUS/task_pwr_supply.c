@@ -85,59 +85,59 @@ lvgl_data_t display_3 = {0};
 
 lvgl_bonded_data_t screen = {0};
 
-/* Send parsed statistics - kompaktno */
-void uart_send_stats_compact(uint8_t gadget_num, system_stats_t *stats) {
+// /* Send parsed statistics - kompaktno */
+// void uart_send_stats_compact(uint8_t gadget_num, system_stats_t *stats) {
 
-	char buffer[200];
-	int offset = 0;
+// 	char buffer[200];
+// 	int offset = 0;
 
-	// Format: "1: Vin=230.5V Iin=2.5A Pin=576W | Vout=48.2V Iout=10.5A
-	// Pout=506W | Eff=87.8% Tout=42C Tin=45C"
-	offset += sprintf(buffer + offset, "%d: ", gadget_num);
-	offset +=
-		sprintf(buffer + offset, "Vin=%.1fV Iin=%.2fA Pin=%.0fW | ",
-				stats->input_voltage, stats->input_current, stats->input_power);
-	offset += sprintf(buffer + offset, "Vout=%.1fV Iout=%.2fA Pout=%.0fW | ",
-					  stats->output_voltage, stats->output_current_1,
-					  stats->output_power);
-	offset += sprintf(buffer + offset, "Eff=%.1f%% Tout=%.0fC Tin=%.0fC",
-					  stats->efficiency, stats->output_temp, stats->input_temp);
-	offset += sprintf(buffer + offset, "\r\n");
+// 	// Format: "1: Vin=230.5V Iin=2.5A Pin=576W | Vout=48.2V Iout=10.5A
+// 	// Pout=506W | Eff=87.8% Tout=42C Tin=45C"
+// 	offset += sprintf(buffer + offset, "%d: ", gadget_num);
+// 	offset +=
+// 		sprintf(buffer + offset, "Vin=%.1fV Iin=%.2fA Pin=%.0fW | ",
+// 				stats->input_voltage, stats->input_current, stats->input_power);
+// 	offset += sprintf(buffer + offset, "Vout=%.1fV Iout=%.2fA Pout=%.0fW | ",
+// 					  stats->output_voltage, stats->output_current_1,
+// 					  stats->output_power);
+// 	offset += sprintf(buffer + offset, "Eff=%.1f%% Tout=%.0fC Tin=%.0fC",
+// 					  stats->efficiency, stats->output_temp, stats->input_temp);
+// 	offset += sprintf(buffer + offset, "\r\n");
 
-	uart_write_bytes(UART_NUM_0, buffer, offset);
-}
+// 	uart_write_bytes(UART_NUM_0, buffer, offset);
+// }
 
-/* Ili još kraća verzija */
-void uart_send_stats_short(uint8_t gadget_num, system_stats_t *stats) {
+// /* Ili još kraća verzija */
+// void uart_send_stats_short(uint8_t gadget_num, system_stats_t *stats) {
 
-	char buffer[128];
+// 	char buffer[128];
 
-	sprintf(buffer, "%d: %.1fV %.2fA %.0fW -> %.1fV %.2fA %.0fW (%.1f%%)\r\n",
-			gadget_num, stats->input_voltage, stats->input_current,
-			stats->input_power, stats->output_voltage, stats->output_current_1,
-			stats->output_power, stats->efficiency);
+// 	sprintf(buffer, "%d: %.1fV %.2fA %.0fW -> %.1fV %.2fA %.0fW (%.1f%%)\r\n",
+// 			gadget_num, stats->input_voltage, stats->input_current,
+// 			stats->input_power, stats->output_voltage, stats->output_current_1,
+// 			stats->output_power, stats->efficiency);
 
-	uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
-}
+// 	uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
+// }
 
-/* Još kompaktnija verzija (ako ti treba) */
-void uart_send_stats_minimal(uint8_t gadget_num, system_stats_t *stats) {
-	char buffer[64];
+// /* Još kompaktnija verzija (ako ti treba) */
+// void uart_send_stats_minimal(uint8_t gadget_num, system_stats_t *stats) {
+// 	char buffer[64];
 
-	sprintf(buffer, "M%d: %.1fV %.1fA %.1fA\r\n", gadget_num,
-			stats->output_voltage, stats->output_current_1,
-			stats->output_current_max);
+// 	sprintf(buffer, "M%d: %.1fV %.1fA %.1fA\r\n", gadget_num,
+// 			stats->output_voltage, stats->output_current_1,
+// 			stats->output_current_max);
 
-	uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
-}
+// 	uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
+// }
 
-/* Provera da li su svi parametri primljeni */
-bool is_stats_complete(system_stats_t *stats) {
-	// Proveri da li su sve bitne vrednosti != 0 (ili postavi flag u
-	// parse_statistics)
-	return (stats->input_voltage > 0 && stats->output_voltage > 0 &&
-			stats->efficiency > 0);
-}
+// /* Provera da li su svi parametri primljeni */
+// bool is_stats_complete(system_stats_t *stats) {
+// 	// Proveri da li su sve bitne vrednosti != 0 (ili postavi flag u
+// 	// parse_statistics)
+// 	return (stats->input_voltage > 0 && stats->output_voltage > 0 &&
+// 			stats->efficiency > 0);
+// }
 
 /*******************************************************************************
  * Main function
@@ -173,7 +173,7 @@ void task_pwr_supply(void *arg) {
 
 				/* Check ID request for display 1 */
 				if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_1) {
-					uart_send_stats_minimal(CAN_GADGET_1, &system_stats_1);
+					// uart_send_stats_minimal(CAN_GADGET_1, &system_stats_1);
 					update_display(&display_1, system_stats_1, CAN_GADGET_1);
 				}
 			}
@@ -186,7 +186,7 @@ void task_pwr_supply(void *arg) {
 
 				/* Check ID request for display 2 */
 				if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_2) {
-					uart_send_stats_minimal(CAN_GADGET_2, &system_stats_2);
+					// uart_send_stats_minimal(CAN_GADGET_2, &system_stats_2);
 					update_display(&display_2, system_stats_2, CAN_GADGET_2);
 				}
 			}
@@ -197,7 +197,7 @@ void task_pwr_supply(void *arg) {
 				/* PARSE THE DATA */
 				parse_statistics(rx_msg.data, &system_stats_3);
 
-				uart_send_stats_minimal(CAN_GADGET_3, &system_stats_3);
+				// uart_send_stats_minimal(CAN_GADGET_3, &system_stats_3);
 				/* Check ID request for display 3 */
 				// if (rx_msg.identifier == CAN_END_OF_REQUEST_VALUES_ID_3) {
 				update_display(&display_3, system_stats_3, CAN_GADGET_3);
