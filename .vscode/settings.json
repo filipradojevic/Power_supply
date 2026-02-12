@@ -1,0 +1,18 @@
+{
+    "idf.espIdfPathWin": "C:/Espressif/frameworks/esp-idf-v5.3/",
+    "idf.toolsPathWin": "C:\\Espressif",
+    "idf.pythonInstallPath": "C:\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.portWin": "COM14",
+    "idf.flashType": "UART",
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "esp_lcd_ili9341.h": "c",
+        "lvgl.h": "c",
+        "task_lvgl_ili9341.h": "c",
+        "task_encoder.h": "c",
+        "main.h": "c"
+    },
+    "idf.currentSetup": "C:/Espressif/frameworks/esp-idf-v5.3/",
+    "C_Cpp.default.configurationProvider": "espressif.esp-idf-extension",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json"
+}
